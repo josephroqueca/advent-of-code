@@ -3,8 +3,7 @@ My solutions to the Advent of Code challenges
 
 ## 2018
 
-Working with ?
-
+### ?
 - [ ] Day 1
 - [ ] Day 2
 - [ ] Day 3
@@ -33,8 +32,7 @@ Working with ?
 
 ## 2017
 
-Working with Ruby
-
+### Python ❌
 - [x] Day 1
 - [x] Day 2
 - [x] Day 3
@@ -63,8 +61,7 @@ Working with Ruby
 
 ## 2016
 
-Working with Python
-
+### Python ❌
 - [x] Day 1
 - [x] Day 2
 - [x] Day 3
@@ -93,8 +90,7 @@ Working with Python
 
 ## 2015
 
-Working with Python
-
+### Python ✅
 - [x] Day 1
 - [x] Day 2
 - [x] Day 3
