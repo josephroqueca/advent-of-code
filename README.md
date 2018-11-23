@@ -32,11 +32,10 @@ My solutions to the Advent of Code challenges
 
 ## 2017
 
-### Ruby ❌
-- [x] Day 1
-- [x] Day 2
-- [x] Day 3
-- [x] Day 4
+- [x] Day 1, Ruby
+- [x] Day 2, Ruby
+- [x] Day 3, Ruby
+- [x] Day 4, Ruby
 - [ ] Day 5
 - [ ] Day 6
 - [ ] Day 7
@@ -61,17 +60,16 @@ My solutions to the Advent of Code challenges
 
 ## 2016
 
-### Python ❌
-- [x] Day 1
-- [x] Day 2
-- [x] Day 3
-- [x] Day 4
-- [x] Day 5
-- [x] Day 6
-- [x] Day 7
-- [x] Day 8
-- [ ] Day 9
-- [x] Day 10
+- [x] Day 1, Python
+- [x] Day 2, Python
+- [x] Day 3, Python
+- [x] Day 4, Python
+- [x] Day 5, Python
+- [x] Day 6, Python
+- [x] Day 7, Python
+- [x] Day 8, Python
+- [x] Day 9, Python
+- [x] Day 10, Python
 - [ ] Day 11
 - [ ] Day 12
 - [ ] Day 13
@@ -90,29 +88,28 @@ My solutions to the Advent of Code challenges
 
 ## 2015
 
-### Python ✅
-- [x] Day 1
-- [x] Day 2
-- [x] Day 3
-- [x] Day 4
-- [x] Day 5
-- [x] Day 6
-- [x] Day 7
-- [x] Day 8
-- [x] Day 9
-- [x] Day 10
-- [x] Day 11
-- [x] Day 12
-- [x] Day 13
-- [x] Day 14
-- [x] Day 15
-- [x] Day 16
-- [x] Day 17
-- [x] Day 18
-- [x] Day 19
-- [x] Day 20
-- [x] Day 21
-- [x] Day 22
-- [x] Day 23
-- [x] Day 24
-- [x] Day 25
+- [x] Day 1, Python
+- [x] Day 2, Python
+- [x] Day 3, Python
+- [x] Day 4, Python
+- [x] Day 5, Python
+- [x] Day 6, Python
+- [x] Day 7, Python
+- [x] Day 8, Python
+- [x] Day 9, Python
+- [x] Day 10, Python
+- [x] Day 11, Python
+- [x] Day 12, Python
+- [x] Day 13, Python
+- [x] Day 14, Python
+- [x] Day 15, Python
+- [x] Day 16, Python
+- [x] Day 17, Python
+- [x] Day 18, Python
+- [x] Day 19, Python
+- [x] Day 20, Python
+- [x] Day 21, Python
+- [x] Day 22, Python
+- [x] Day 23, Python
+- [x] Day 24, Python
+- [x] Day 25, Python
