@@ -1,4 +1,5 @@
 # Advent of Code
+
 My solutions to the Advent of Code challenges
 
 ## 2018
@@ -34,7 +35,7 @@ My solutions to the Advent of Code challenges
 - [x] Day 1, Ruby
 - [x] Day 2, Ruby
 - [x] Day 3, Ruby
-- [x] Day 4, Ruby
+- [x] Day 4, Haskell
 - [ ] Day 5
 - [ ] Day 6
 - [ ] Day 7
