@@ -3,7 +3,6 @@ My solutions to the Advent of Code challenges
 
 ## 2018
 
-### ?
 - [ ] Day 1
 - [ ] Day 2
 - [ ] Day 3
