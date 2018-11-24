@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-import operator
-
 # Read the challenge input
-with open("input.txt", "r") as input_file:
+with open('input.txt', 'r') as input_file:
   puzzle_input = input_file.readlines()
+
+import operator
 
 # Returns the 5 most common letters, sorted by frequency, and alphabetically
 def get_most_common(letter_freq):
@@ -39,4 +39,4 @@ for line in puzzle_input:
         sector_id_sum += int(sectors[sector_idx][:checksum_start])
 
 
-print("The sum of the sector ids of real rooms is", sector_id_sum)
+print('The sum of the sector ids of real rooms is', sector_id_sum)

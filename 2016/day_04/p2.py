@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-import operator
-
 # Read the challenge input
-with open("input.txt", "r") as input_file:
+with open('input.txt', 'r') as input_file:
   puzzle_input = input_file.readlines()
+
+import operator
 
 # Returns the 5 most common letters, sorted by frequency, and alphabetically
 def get_most_common(letter_freq):
@@ -52,9 +52,9 @@ for line in puzzle_input:
         sector_name = decrypt_name(checksum_start, sectors)
         if sector_name == 'northpoleobjectstorage':
           # Print where the north pole objects are stored
-          print("North Pole objects are stored in room", sector_id)
+          print('North Pole objects are stored in room', sector_id)
           north_pole_found = True
           break
 
 if not north_pole_found:
-  print("Could not find where the North Pole objects are stored.")
+  print('Could not find where the North Pole objects are stored.')

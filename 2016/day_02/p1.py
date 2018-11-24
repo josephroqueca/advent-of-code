@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Read the challenge input
-with open("input.txt", "r") as input_file:
+with open('input.txt', 'r') as input_file:
   puzzle_input = input_file.readlines()
 
 # Keypad layout
@@ -24,4 +24,4 @@ for line in puzzle_input:
 
   code.append(layout[start[0]][start[1]])
 
-print("The code for the bathroom is", code)
+print('The code for the bathroom is', code)

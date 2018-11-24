@@ -28,4 +28,4 @@ while values_found < 8:
     code[int(digest[5])] = digest[6]
 
 # Print the password
-print("The password is", "".join(code))
+print('The password is', ''.join(code))

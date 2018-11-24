@@ -25,4 +25,4 @@ while len(code) < 8:
   code.append(digest[5])
 
 # Print the password
-print("The password is", "".join(code))
+print('The password is', ''.join(code))
