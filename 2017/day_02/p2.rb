@@ -1,10 +1,6 @@
-input = nil
+#!/usr/bin/env ruby
 
-if File.basename(Dir.getwd).match?(/day\d\d$/) then
-    input = File.readlines('input.txt')
-else
-    input = File.readlines('day02/input.txt')
-end
+input = File.readlines('input.txt')
 
 checksum = 0
 
