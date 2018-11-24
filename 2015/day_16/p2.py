@@ -1,25 +1,10 @@
-##############################
-#                            #
-#        Instructions        #
-#                            #
-##############################
+#!/usr/bin/env python3
 
-# To run, use the following command:
-# $ python therealsue.py <input_file>
-# where <input_file> is the filename with the question's input
+# Read the challenge input
+with open('input.txt', 'r') as input_file:
+  puzzle_input = input_file.readlines()
 
-import sys
 import re
-
-# Check to make sure correct number of arguments supplied
-if (len(sys.argv) != 2):
-    print('Invalid number of arguments!')
-    sys.exit()
-
-# Read the input from the file provided as argument
-input_file = open(sys.argv[1])
-puzzle_input = input_file.readlines()
-input_file.close()
 
 # Array indices
 children = 0
@@ -49,30 +34,30 @@ aunts = []
 
 # For each aunt in the input
 for line in puzzle_input:
-	# Start with -1 for all the values
-	aunt = [-1 for i in range(10)]
+  # Start with -1 for all the values
+  aunt = [-1 for i in range(10)]
 
-	# For each property, check if it was remembered about the aunt and, if so, update the list
-	for i in range(len(aunt_regexes)):
-		match = re.search(aunt_regexes[i], line)
-		if match:
-			aunt[i] = int(match.group(1))
+  # For each property, check if it was remembered about the aunt and, if so, update the list
+  for i in range(len(aunt_regexes)):
+    match = re.search(aunt_regexes[i], line)
+    if match:
+      aunt[i] = int(match.group(1))
 
-	# Add the new aunt to the list so far
-	aunts.append(aunt)
+  # Add the new aunt to the list so far
+  aunts.append(aunt)
 
 # Loop through all the aunts and find the one who matches all the properties
 # When they are found, print out their number
 for aunt in range(len(aunts)):
-	the_real_aunt = True
-	for i in greater_than_properties:
-		if not (aunts[aunt][i] > aunt_properties[i] or aunts[aunt][i] == -1):
-			the_real_aunt = False
-	for i in less_than_properties:
-		if not (aunts[aunt][i] < aunt_properties[i] or aunts[aunt][i] == -1):
-			the_real_aunt = False
-	for i in equal_properties:
-		if not (aunts[aunt][i] == aunt_properties[i] or aunts[aunt][i] == -1):
-			the_real_aunt = False
-	if the_real_aunt:
-		print ('The aunt who sent the gift was Aunt Sue #', aunt + 1)
+  the_real_aunt = True
+  for i in greater_than_properties:
+    if not (aunts[aunt][i] > aunt_properties[i] or aunts[aunt][i] == -1):
+      the_real_aunt = False
+  for i in less_than_properties:
+    if not (aunts[aunt][i] < aunt_properties[i] or aunts[aunt][i] == -1):
+      the_real_aunt = False
+  for i in equal_properties:
+    if not (aunts[aunt][i] == aunt_properties[i] or aunts[aunt][i] == -1):
+      the_real_aunt = False
+  if the_real_aunt:
+    print ('The aunt who sent the gift was Aunt Sue #', aunt + 1)

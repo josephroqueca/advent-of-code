@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-import re
-
 # Read the challenge input
-with open("input.txt", 'r') as input_file:
+with open('input.txt', 'r') as input_file:
   puzzle_input = input_file.readlines()
+
+import re
 
 # Initialize to 0 feet of ribbon
 total_length = 0

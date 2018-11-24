@@ -1,25 +1,10 @@
-##############################
-#                            #
-#        Instructions        #
-#                            #
-##############################
+#!/usr/bin/env python3
 
-# To run, use the following command:
-# $ python nicestrings.py <input_file>
-# where <input_file> is the filename with the question's input
+# Read the challenge input
+with open('input.txt', 'r') as input_file:
+  puzzle_input = input_file.read()
 
-import sys
 import re
-
-# Check to make sure correct number of arguments supplied
-if (len(sys.argv) != 2):
-    print('Invalid number of arguments!')
-    sys.exit()
-
-# Read the input from the file provided as argument
-input_file = open(sys.argv[1])
-puzzle_input = input_file.read()
-input_file.close()
 
 # Create regex to match the rules
 # 1. Contains at least 3 values

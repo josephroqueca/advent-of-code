@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-from collections import namedtuple
-
 # Read the challenge input
-with open("input.txt", 'r') as input_file:
+with open('input.txt', 'r') as input_file:
   puzzle_input = input_file.read()
+
+from collections import namedtuple
 
 # Tuple to use as dictionary key
 Location = namedtuple('Location', ['x', 'y'])

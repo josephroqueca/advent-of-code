@@ -6,7 +6,7 @@ with open('input.txt', 'r') as input_file:
 
 import re
 
-register_a = 0
+register_a = 1
 register_b = 0
 commands = []
 

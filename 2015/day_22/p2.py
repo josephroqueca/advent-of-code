@@ -3,7 +3,7 @@
 # Initial stats of the player and the boss
 boss_base_stats = {'hp': 58, 'damage': 9}
 player_base_stats = {'hp': 50, 'mana': 500}
-hard_mode_enabled = False
+hard_mode_enabled = True
 
 class Player:
   def __init__(self):

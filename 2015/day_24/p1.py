@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
+# Read the challenge input
+with open('input.txt', 'r') as input_file:
+  puzzle_input = input_file.readlines()
+
 import copy
 from functools import reduce
 from operator import mul
-
-# Read the challenge input
-with open("input.txt", 'r') as input_file:
-  puzzle_input = input_file.readlines()
 
 total_weight = 0
 weights = []
