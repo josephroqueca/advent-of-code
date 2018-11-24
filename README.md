@@ -2,6 +2,14 @@
 
 My solutions to the Advent of Code challenges
 
+## How to run
+
+You can use the incredibly convenient `./script/run` script! It's used as follows:
+
+`./script/run <language> <year> <day> <part>`, i.e. `./script/run haskell 2017 5 1`
+
+If a problem hasn't been solved with your language of choice, then the script will tell you! Check out the list below for languages that problems have been solved in.
+
 ## 2018
 
 - [ ] Day 1
