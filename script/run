@@ -12,7 +12,8 @@ cd $2/day_$day/
 if [ $1 = "haskell" ]; then
     source_file=p$4.hs
     output_file=p$4.hsx
-    stack ghc -- $source_file -o $output_file
+    echo "Attempting to build $source_file"
+    stack ghc -- $source_file -o $output_file -optl -Qunused-arguments
     if [ $? -eq 0 ]; then
         echo "Running $2/day_$day/$output_file\n-----\n"
         ./$output_file
