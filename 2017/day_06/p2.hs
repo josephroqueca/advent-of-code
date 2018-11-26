@@ -1,17 +1,14 @@
-import Debug.Trace (trace)
-
 import Data.List (maximumBy)
 import Data.Map (Map, (!))
 import qualified Data.Map as Map
-import Data.Ord (Ordering, comparing)
-import System.IO
+import Data.Ord (Ordering)
 
 countRedistributions :: Map Int Int -> Int
 countRedistributions memoryMap = countRedistributions' memoryMap (Map.fromList $ zip [show . Map.elems $ memoryMap] [0]) 0
 
 countRedistributions' :: Map Int Int -> Map String Int -> Int -> Int
 countRedistributions' memoryMap pastConfigurations totalRedistributions
-    | redistribution' `Map.member` pastConfigurations = totalRedistributions - (Map.findWithDefault 0 redistribution' pastConfigurations)
+    | redistribution' `Map.member` pastConfigurations = totalRedistributions - Map.findWithDefault 0 redistribution' pastConfigurations
     | otherwise = countRedistributions' nextMemoryMap nextConfigurations (totalRedistributions + 1)
     where redistribution = redistribute memoryMap
           redistribution' = show redistribution
@@ -25,7 +22,7 @@ compareBanks :: (Int, Int) -> (Int, Int) -> Ordering
 compareBanks first second
     | ordering == GT = GT
     | ordering == LT = LT
-    | otherwise = if (compare (fst first) (fst second) == GT) then LT else GT
+    | otherwise = if fst first > fst second then LT else GT
     where ordering = compare (snd first) (snd second)
 
 redistribute :: Map Int Int -> [Int]
@@ -39,7 +36,7 @@ redistribute' memoryMap position remainingBlocks
     where nextPosition = nextBank position memoryMap
 
 nextBank :: Int -> Map Int Int -> Int
-nextBank position memoryMap = if (position + 1 < Map.size memoryMap) then position + 1 else 0
+nextBank position memoryMap = if position + 1 < Map.size memoryMap then position + 1 else 0
 
 mapMemory :: [Int] -> Map Int Int
 mapMemory memoryBanks = Map.fromList $ zip [0..length memoryBanks] memoryBanks
@@ -48,4 +45,4 @@ main :: IO()
 main = do
     input <- readFile "input.txt"
     let inputAsIntegers = map (read::String -> Int) (words input) in
-        putStrLn . show . countRedistributions . mapMemory $ inputAsIntegers
+        print . countRedistributions . mapMemory $ inputAsIntegers

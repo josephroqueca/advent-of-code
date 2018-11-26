@@ -1,8 +1,5 @@
 import Data.List (sort)
-import Data.Set (Set)
 import qualified Data.Set as Set
-
-import System.IO
 
 isValid :: String -> Bool
 isValid [] = True
@@ -15,4 +12,4 @@ isValid passwords
 main :: IO()
 main = do
     input <- readFile "input.txt"
-    putStrLn . show . sum $ [ 1 | passwords <- (lines input), isValid passwords]
+    print . sum $ [ 1 | passwords <- lines input, isValid passwords]

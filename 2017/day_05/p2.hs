@@ -1,6 +1,4 @@
 import Data.Map (Map, fromList, insert, size, (!))
-import qualified Data.Map as Map
-import System.IO
 
 stepThrough :: Map Int Int -> Int -> Int
 stepThrough offsets position = stepThrough' offsets position 0
@@ -10,7 +8,7 @@ stepThrough' offsets position stepsSoFar
     | position <= lowerBound || position >= upperBound = stepsSoFar
     | otherwise = let newOffsets = insert position adjustedOffset offsets in stepThrough' newOffsets (position + currentOffset) (stepsSoFar + 1)
     where currentOffset = offsets ! position
-          adjustedOffset = if (currentOffset >= 3) then currentOffset - 1 else currentOffset + 1
+          adjustedOffset = if currentOffset >= 3 then currentOffset - 1 else currentOffset + 1
           lowerBound = -1
           upperBound = size offsets
 
@@ -19,4 +17,4 @@ main = do
     input <- readFile "input.txt"
     let offsets = map (read::String -> Int) (lines input)
     let offsetMap = fromList $ zip [0..(length offsets)] offsets
-    putStrLn . show $ stepThrough offsetMap 0
+    print $ stepThrough offsetMap 0
