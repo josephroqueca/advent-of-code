@@ -44,9 +44,9 @@ If a problem hasn't been solved with your language of choice, then the script wi
 - [x] Day 2, Ruby
 - [x] Day 3, Ruby
 - [x] Day 4, Haskell
-- [ ] Day 5
-- [ ] Day 6
-- [ ] Day 7
+- [x] Day 5, Haksell
+- [x] Day 6, Haskell
+- [x] Day 7, Haskell, Python
 - [ ] Day 8
 - [ ] Day 9
 - [ ] Day 10
