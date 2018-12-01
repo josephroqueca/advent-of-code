@@ -12,7 +12,7 @@ If a problem hasn't been solved with your language of choice, then the script wi
 
 ## 2018
 
-- [ ] Day 1
+- [x] Day 1, Python, Haskell (Global leaderboard: #26)
 - [ ] Day 2
 - [ ] Day 3
 - [ ] Day 4
