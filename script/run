@@ -10,31 +10,38 @@ part=$4
 if [ ${#day} -le 1 ]; then
     day=0$day
 fi
-cd $year/day_$day/$language/
+
+if [ $year = 2018 ]; then
+    script_dir=$year/day_$day/$language
+    cd $script_dir
+else
+    script_dir=$year/day_$day
+    cd $script_dir
+fi
 
 run_python () {
     source_file=p$part.py
-    echo "Running $year/day_$day/$output_file"
+    printf "Running $script_dir/$source_file\n-----\n"
     python3 $source_file
 }
 
 run_haskell () {
     source_file=p$part.hs
     output_file=p$part.hsx
-    echo "Attempting to build $source_file"
+    printf "Attempting to build $source_file"
     stack ghc -- $source_file -o $output_file
     if [ $? -eq 0 ]; then
-        echo "Running $year/day_$day/$output_file"
+        printf "Running $script_dir/$output_file\n-----\n"
         ./$output_file
     else
-        echo "Failed to build $source_file, not running"
+        printf "Failed to build $source_file, not running"
         exit 1
     fi
 }
 
 run_ruby () {
     source_file=p$part.rb
-    echo "Running $year/day_$day/$output_file"
+    printf "Running $script_dir/$source_file\n-----\n"
     ruby $source_file
 }
 
