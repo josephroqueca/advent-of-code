@@ -13,7 +13,7 @@ If a problem hasn't been solved with your language of choice, then the script wi
 ## 2018
 
 ✅ Day 1, Python, Haskell  
-✅ Day 2, Python  
+✅ Day 2, Python, Haskell  
 ✅ Day 3, Python  
 ✅ Day 4, Python  
 ❔ Day 5  
