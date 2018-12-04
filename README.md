@@ -13,9 +13,9 @@ If a problem hasn't been solved with your language of choice, then the script wi
 ## 2018
 
 - [x] Day 1, Python, Haskell (Global leaderboard: #26)
-- [ ] Day 2
-- [ ] Day 3
-- [ ] Day 4
+- [x] Day 2, Python (Global leaderboard: #36)
+- [x] Day 3, Python (Global leaderboard: #56)
+- [x] Day 4, Python (Global leaderboard: #74)
 - [ ] Day 5
 - [ ] Day 6
 - [ ] Day 7
