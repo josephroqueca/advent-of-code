@@ -17,7 +17,7 @@ stripPositives (x:xs) = x : stripPositives xs
 
 main :: IO()
 main = do
-    input <- readFile "input.txt"
+    input <- readFile "../input.txt"
     putStr "The first repeated frequency is: "
     let adjustments = map (read::String -> Int) (lines $ stripPositives input) in
         print $ adjustFrequency Set.empty 0 adjustments adjustments

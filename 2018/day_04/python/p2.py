@@ -2,7 +2,7 @@
 
 import re
 
-def get_lines(name='input.txt'):
+def get_lines(name='../input.txt'):
     with open(name, 'r') as input_file:
         return input_file.readlines()
 

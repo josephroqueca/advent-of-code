@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Read the challenge input
-with open('input.txt', 'r') as input_file:
+with open('../input.txt', 'r') as input_file:
   lines_input = input_file.readlines()
 
 ids_with_pairs =set()
