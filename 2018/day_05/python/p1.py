@@ -36,4 +36,5 @@ while cur_index < len(puzzle) - 1:
 
     cur_index = next_index(cur_index, removed_elements)
 
-print(len(puzzle) - len(removed_elements))
+puzzle_size = len(puzzle) - len(removed_elements)
+print(puzzle_size, 'units remain after fully reacting the polymer')
