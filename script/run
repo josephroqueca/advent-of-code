@@ -11,13 +11,8 @@ if [ ${#day} -le 1 ]; then
     day=0$day
 fi
 
-if [ $year = 2018 ]; then
-    script_dir=$year/day_$day/$language
-    cd $script_dir
-else
-    script_dir=$year/day_$day
-    cd $script_dir
-fi
+script_dir=$year/day_$day/$language
+cd $script_dir
 
 run_python () {
     source_file=p$part.py
