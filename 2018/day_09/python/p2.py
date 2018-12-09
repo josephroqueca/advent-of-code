@@ -37,7 +37,6 @@ highest_marble_placed = 0
 current_marble = Marble(0)
 current_marble.clockwise = current_marble
 current_marble.counterclockwise = current_marble
-marbles = { 0: current_marble }
 
 while highest_marble_placed < last_marble_points:
     marble_to_place = Marble(highest_marble_placed + 1)
@@ -47,7 +46,6 @@ while highest_marble_placed < last_marble_points:
         player_points[current_player] += removed_marble.value
         current_marble = next_marble
     else:
-        marbles[marble_to_place.value] = marble_to_place
         marble_to_place.clockwise = current_marble.clockwise.clockwise
         marble_to_place.counterclockwise = current_marble.clockwise
         current_marble.clockwise.clockwise.counterclockwise = marble_to_place
