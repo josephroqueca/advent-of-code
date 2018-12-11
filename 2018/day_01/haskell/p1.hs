@@ -1,3 +1,5 @@
+import System.Environment.FindBin (getProgPath)
+
 adjustFrequency :: Int -> [Int] -> Int
 adjustFrequency = foldl (+)
 
@@ -8,6 +10,7 @@ stripPositives (x:xs) = x : stripPositives xs
 
 main :: IO()
 main = do
-    input <- readFile "../input.txt"
+    scriptDir <- getProgPath
+    input <- readFile (scriptDir ++ "/../input.txt")
     putStr "The resulting frequency is: "
     print $ adjustFrequency 0 $ map read (lines $ stripPositives input)

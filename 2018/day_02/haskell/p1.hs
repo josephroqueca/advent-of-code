@@ -1,3 +1,5 @@
+import System.Environment.FindBin (getProgPath)
+
 import Data.Map (Map, (!))
 import qualified Data.Map as Map
 
@@ -10,7 +12,8 @@ hasRepeatedLetters (x:xs) repeats goal
 
 main :: IO()
 main = do
-    input <- readFile "../input.txt"
+    scriptDir <- getProgPath
+    input <- readFile (scriptDir ++ "/../input.txt")
     let ids = lines input
         twos = length (filter (\x -> hasRepeatedLetters x Map.empty 2) ids)
         threes = length (filter (\x -> hasRepeatedLetters x Map.empty 3) ids)

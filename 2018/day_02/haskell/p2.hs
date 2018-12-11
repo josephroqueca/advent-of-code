@@ -1,3 +1,5 @@
+import System.Environment.FindBin (getProgPath)
+
 countDifferingLetters :: String -> String -> Int -> Int
 countDifferingLetters [] [] differing = differing
 countDifferingLetters (x:xs) (y:ys) differing
@@ -14,7 +16,8 @@ dropDifferentLetters _ _ = error "Invalid ids!"
 
 main :: IO()
 main = do
-    input <- readFile "../input.txt"
+    scriptDir <- getProgPath
+    input <- readFile (scriptDir ++ "/../input.txt")
     let input_lines = lines input
     let similar_ids = filter (\x -> not (null (filter (\y -> countDifferingLetters x y 0 == 1) input_lines))) input_lines
     putStr "The two similar IDs are: "

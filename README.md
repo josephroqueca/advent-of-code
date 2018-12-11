@@ -18,9 +18,9 @@ If a problem hasn't been solved with your language of choice, then the script wi
 ✅ Day 4, Python  
 ✅ Day 5, Python  
 ✅ Day 6, Python  
-❔ Day 7  
-❔ Day 8  
-❔ Day 9  
+✅ Day 7, Python  
+✅ Day 8, Python  
+✅ Day 9, Python  
 ❔ Day 10  
 ❔ Day 11  
 ❔ Day 12  
