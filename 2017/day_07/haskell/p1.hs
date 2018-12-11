@@ -1,3 +1,5 @@
+import System.Environment.FindBin (getProgPath)
+
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 
@@ -37,7 +39,8 @@ flatten (x:xs) = x ++ foldr (++) [] xs
 
 main :: IO()
 main = do
-    input <- readFile "../input.txt"
+    scriptDir <- getProgPath
+    input <- readFile (scriptDir ++ "/../input.txt")
     let programs = map buildProgram (lines input)
     let programMap = Map.fromList $ zip (map programName programs) programs
     let subPrograms = Set.fromList . flatten $ map heldPrograms (Map.elems programMap)

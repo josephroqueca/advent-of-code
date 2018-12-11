@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 
-input = File.readlines('../input.txt')
+script_dir = File.expand_path(File.dirname(__FILE__))
+filename = '%s/../input.txt' % script_dir
+input = File.readlines(filename)
 input = input[0]
 
 sum = 0

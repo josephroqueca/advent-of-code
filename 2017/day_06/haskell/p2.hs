@@ -1,3 +1,5 @@
+import System.Environment.FindBin (getProgPath)
+
 import Data.List (maximumBy)
 import Data.Map (Map, (!))
 import qualified Data.Map as Map
@@ -43,6 +45,7 @@ mapMemory memoryBanks = Map.fromList $ zip [0..length memoryBanks] memoryBanks
 
 main :: IO()
 main = do
-    input <- readFile "../input.txt"
+    scriptDir <- getProgPath
+    input <- readFile (scriptDir ++ "/../input.txt")
     let inputAsIntegers = map (read::String -> Int) (words input) in
         print . countRedistributions . mapMemory $ inputAsIntegers

@@ -1,3 +1,5 @@
+import System.Environment.FindBin (getProgPath)
+
 import Data.List (sort)
 import qualified Data.Set as Set
 
@@ -11,5 +13,6 @@ isValid passwords
 
 main :: IO()
 main = do
-    input <- readFile "../input.txt"
+    scriptDir <- getProgPath
+    input <- readFile (scriptDir ++ "/../input.txt")
     print . sum $ [ 1 | passwords <- lines input, isValid passwords]

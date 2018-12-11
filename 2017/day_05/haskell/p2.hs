@@ -1,3 +1,5 @@
+import System.Environment.FindBin (getProgPath)
+
 import Data.Map (Map, fromList, insert, size, (!))
 
 stepThrough :: Map Int Int -> Int -> Int
@@ -14,7 +16,8 @@ stepThrough' offsets position stepsSoFar
 
 main :: IO()
 main = do
-    input <- readFile "../input.txt"
+    scriptDir <- getProgPath
+    input <- readFile (scriptDir ++ "/../input.txt")
     let offsets = map (read::String -> Int) (lines input)
     let offsetMap = fromList $ zip [0..(length offsets)] offsets
     print $ stepThrough offsetMap 0

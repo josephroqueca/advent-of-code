@@ -1,3 +1,5 @@
+import System.Environment.FindBin (getProgPath)
+
 import Data.Map (Map, (!))
 import qualified Data.Map as Map
 import qualified Data.Set as Set
@@ -34,5 +36,6 @@ findLargestRegister registers = foldr (\ x -> max (registers ! x)) 0
 
 main :: IO()
 main = do
-    input <- readFile "../input.txt"
+    scriptDir <- getProgPath
+    input <- readFile (scriptDir ++ "/../input.txt")
     print $ largestIntermediateRegisterValue (lines input) Map.empty

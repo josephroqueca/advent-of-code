@@ -1,3 +1,5 @@
+import System.Environment.FindBin (getProgPath)
+
 steps :: [Int] -> Int -> Int
 steps offsets position = steps' offsets position 0
 
@@ -14,6 +16,7 @@ steps' offsets position stepsSoFar
 
 main :: IO()
 main = do
-    input <- readFile "../input.txt"
+    scriptDir <- getProgPath
+    input <- readFile (scriptDir ++ "/../input.txt")
     let offsets = map (read::String -> Int) (lines input)
     print $ steps offsets 0
