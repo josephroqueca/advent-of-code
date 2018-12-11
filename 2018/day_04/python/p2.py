@@ -2,7 +2,11 @@
 
 import re
 
-def get_lines(name='../input.txt'):
+import os
+script_path = os.path.dirname(os.path.realpath(__file__))
+filename = '{}/../input.txt'.format(script_path)
+
+def get_lines(name=filename):
     with open(name, 'r') as input_file:
         return input_file.readlines()
 

@@ -1,6 +1,10 @@
-# Reading challenge input
+#!/usr/bin/env python3
 
-def get_file(name='../input.txt'):
+import os
+script_path = os.path.dirname(os.path.realpath(__file__))
+filename = '{}/../input.txt'.format(script_path)
+
+def get_file(name=filename):
     with open(name) as input_file:
         return input_file.read().strip()
 

@@ -5,28 +5,24 @@ import json
 import itertools
 import hashlib
 
-# Reading test input
-def get_test_lines():
-    return get_lines(name='../test.txt')
+test_input = False
 
-def get_test_file():
-    return get_file(name='../test.txt')
+import os
+script_path = os.path.dirname(os.path.realpath(__file__))
+filename = '{}/../{}.txt'.format(script_path, 'test' if test_input else 'input')
 
-# Reading challenge input
-def get_file(name='../input.txt'):
-    with open(name) as input_file:
-        return input_file.read()
+def get_file():
+    with open(filename) as f:
+        return f.read()
 
-def get_lines(name='../input.txt'):
-    with open(name) as input_file:
-        return input_file.readlines()
+def get_lines():
+    with open(filename) as f:
+        return f.readlines()
 
-def get_nums_by_line():
-    return [[int(match) for match in re.findall(r'-?\d+', line)] for line in get_lines()]
+def get_numbers_by_line(allow_negatives=True):
+    regex = r'-?\d+' if allow_negatives else r'\d+'
+    return [[int(match) for match in re.findall(regex, line)] for line in get_lines()]
 
-def get_test_nums_by_line():
-    return [[int(match) for match in re.findall(r'-?\d+', line)] for line in get_test_lines()]
-
-def get_nums_from_line(line):
-    return [int(match) for match in re.findall(r'-?\d+', line)]
-
+def get_numbers_from_line(line, allow_negatives=True):
+    regex = r'-?\d+' if allow_negatives else r'\d+'
+    return [int(match) for match in re.findall(regex, line)]

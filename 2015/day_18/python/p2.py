@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 
+import os
+script_path = os.path.dirname(os.path.realpath(__file__))
+filename = '{}/../input.txt'.format(script_path)
+
 # Read the challenge input
-with open('../input.txt', 'r') as input_file:
+with open(filename, 'r') as input_file:
   puzzle_input = input_file.readlines()
 
 # Initialize the array of lights to all off
