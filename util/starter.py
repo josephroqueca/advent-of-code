@@ -17,7 +17,7 @@ def get_file():
 
 def get_lines():
     with open(filename) as f:
-        return f.readlines()
+        return [line.strip() for line in f.readlines()]
 
 def get_numbers_by_line(allow_negatives=True):
     regex = r'-?\d+' if allow_negatives else r'\d+'
