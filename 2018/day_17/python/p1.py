@@ -75,8 +75,8 @@ def print_status(current_tile):
     print('====================')
 
 def print_snippet(current_tile):
-    min_y = max(min_height, current_tile[1] - 20)
-    max_y = min(max_height, current_tile[1] + 20)
+    min_y = max(min_height, current_tile[1] - 10)
+    max_y = min(max_height, current_tile[1] + 10)
     for y in range(min_y, max_y):
         row = ""
         for x in range(left - 1, right + 1):
@@ -135,37 +135,42 @@ touched = set()
 
 iterations = 0
 spilled_water = set()
-last_spilled_water = None
-while last_spilled_water is None or last_spilled_water != spilled_water:
-    print('here')
-    last_spilled_water = spilled_water
-    spilled_water = set()
-    while not spilled_water or moving_water:
-        water = moving_water.pop() if moving_water else starting_tile
 
-        left_edge, left_enclosed = find_left_edge(water)
-        right_edge, right_enclosed = find_right_edge(water)
+while not spilled_water or moving_water:
+    water = moving_water.pop() if moving_water else starting_tile
 
-        for x in range(left_edge[0], right_edge[0] + 1):
-            cell = (x, water[1])
-            if left_enclosed and right_enclosed:
-                settled_water.add(cell)
-            if in_range(cell): 
-                touched.add(cell)
+    # print_snippet(water)
+    # input()
 
-        under_left = under(left_edge)
-        if not left_enclosed:
-            if in_range(under_left):
-                moving_water.append(under_left)
-            else:
-                spilled_water.add(under_left)
+    left_edge, left_enclosed = find_left_edge(water)
+    right_edge, right_enclosed = find_right_edge(water)
 
-        under_right = under(right_edge)
-        if not right_enclosed:
-            if in_range(under_right):
-                if not moving_water or moving_water[-1] != under_right:
-                    moving_water.append(under_right)
-            else:
-                spilled_water.add(under_right)
-        iterations += 1
+    if in_range(water):
+        touched.add(water)
+
+    for x in range(left_edge[0], right_edge[0] + 1):
+        cell = (x, water[1])
+        if left_enclosed and right_enclosed:
+            settled_water.add(cell)
+        if in_range(cell):
+            touched.add(cell)
+
+    under_left = under(left_edge)
+    if not left_enclosed:
+        if in_range(under_left):
+            moving_water.append(under_left)
+        else:
+            spilled_water.add(under_left)
+
+    under_right = under(right_edge)
+    if not right_enclosed:
+        if in_range(under_right) and (not moving_water or moving_water[-1] != under_right):
+            moving_water.append(under_right)
+        else:
+            spilled_water.add(under_right)
+
+    if left_enclosed and right_enclosed:
+        moving_water.append(above(water))
+
+print_status(water)
 print(len(touched))
