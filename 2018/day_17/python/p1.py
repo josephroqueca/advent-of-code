@@ -5,7 +5,7 @@ import json
 import itertools
 import hashlib
 
-test_input = True
+test_input = False
 
 import os
 script_path = os.path.dirname(os.path.realpath(__file__))
@@ -52,126 +52,120 @@ for line in get_lines():
         for x in range(values[1], values[2] + 1):
             clay.add((x, y))
 
-class Water(object):
-    def __init__(self, tile, is_source, moved_left, moved_right):
-        self.tile = tile
-        self.is_source = is_source
-        self.moved_left = moved_left
-        self.moved_right = moved_right
-    def __eq__(self, other):
-        return self.tile == other.tile and self.is_source == other.is_source and self.moved_left == other.moved_left and self.moved_right == other.moved_right
-    def __hash__(self):
-        return hash(self.tile)
-    def __repr__(self):
-        return "({}, {}, {})".format(self.tile, self.moved_left, self.moved_right)
+settled_water = set()
 
-starting_tile = (500, 0)
-starting_water = Water(starting_tile, True, False, False)
-left_settled = set()
-right_settled = set()
-touched = set()
-moving_water = [starting_water]
-
-def print_status(current_water):
-    print('==========')
+def print_status(current_tile):
     for y in range(min_height, max_height + 1):
         row = ""
-        for x in range(left, right + 1):
+        for x in range(left - 1, right + 1):
             tile = (x, y)
-            if tile == current_water.tile:
-                row += '+'
-            elif tile in clay:
+            if tile in clay:
                 row += '#'
-            elif is_settled(tile):
+            elif tile == current_tile:
+                row += '+'
+            elif tile in settled_water:
                 row += '~'
             elif tile in touched:
                 row += '|'
             else:
                 row += '.'
         print(row)
-    print('left', left_settled)
-    print('right', right_settled)
-    print('left, not right:', left_settled.difference(right_settled))
-    print('right, not left:', right_settled.difference(left_settled))
-    print('moving', moving_water)
-    print('==========')
+    print('touched', len(touched))
+    print('moving', moving_water, current_tile)
+    print('====================')
 
-def is_settled(tile):
-    return tile in left_settled and tile in right_settled
-
-last_infinity_reached = None
-infinity_reached = set()
-iterations = 0
-
-while last_infinity_reached is None or last_infinity_reached != infinity_reached:
-    last_infinity_reached = set(infinity_reached)
-    infinity_reached = set()
-
-    left_touched_this_iteration = set()
-    right_touched_this_iteration = set()
-    left_settled.intersection_update(right_settled)
-    right_settled.intersection_update(left_settled)
-
-    while moving_water:
-        water = moving_water.pop()
-        tile = water.tile
-
-        if tile in clay or is_settled(tile):
-            continue
-
-        if tile[1] >= min_height and tile[1] <= max_height:
-            touched.add(tile)
-
-        if water.moved_left:
-            left_touched_this_iteration.add(tile)
-        if water.moved_right:
-            right_touched_this_iteration.add(tile)
-
-        iterations += 1
-        if iterations % 100000 == 0:
-            print_status(water)
-        print_status(water)
-        input()
-
-        left_tile = (tile[0] - 1, tile[1])
-        right_tile = (tile[0] + 1, tile[1])
-        below_tile = (tile[0], tile[1] + 1)
-
-        if water.is_source:
-            left_water = Water(left_tile, False, True, False)
-            right_water = Water(right_tile, False, False, True)
-            below_water = Water(below_tile, True, False, False)
-            if (is_settled(left_tile) or left_tile in clay) and (is_settled(right_tile) or right_tile in clay):
-                left_settled.add(tile)
-                right_settled.add(tile)
-                continue
-        else:
-            left_water = Water(left_tile, False, water.moved_left, water.moved_right)
-            right_water = Water(right_tile, False, water.moved_left, water.moved_right)
-            below_water = Water(below_tile, True, False, False)
-
-        if below_tile in clay or is_settled(below_tile):
-            if left_tile in clay or left_tile in left_settled:
-                if not water.is_source: left_settled.add(tile)
-                if right_tile not in left_settled:
-                    moving_water.append(right_water)
-            elif left_tile not in left_touched_this_iteration:
-                moving_water.append(left_water)
-
-            if right_tile in clay or right_tile in right_settled:
-                if not water.is_source: right_settled.add(tile)
-                if left_tile not in right_settled:
-                    moving_water.append(left_water)
-            elif right_tile not in right_touched_this_iteration:
-                moving_water.append(right_water)
-        else:
-            if below_tile[1] > max_height:
-                infinity_reached.add(tile)
+def print_snippet(current_tile):
+    min_y = max(min_height, current_tile[1] - 20)
+    max_y = min(max_height, current_tile[1] + 20)
+    for y in range(min_y, max_y):
+        row = ""
+        for x in range(left - 1, right + 1):
+            tile = (x, y)
+            if tile in clay:
+                row += '#'
+            elif tile == current_tile:
+                row += '+'
+            elif tile in settled_water:
+                row += '~'
+            elif tile in touched:
+                row += '|'
             else:
-                moving_water.append(below_water)
+                row += '.'
+        print(row)
+    print('touched', len(touched))
+    print('moving', moving_water, current_tile)
+    print('====================')
 
-    if not infinity_reached:
-        last_infinity_reached = None
-    moving_water.append(starting_water)
+def left_of(tile):
+    return (tile[0] - 1, tile[1])
+def right_of(tile):
+    return (tile[0] + 1, tile[1])
+def under(tile):
+    return (tile[0], tile[1] + 1)
+def above(tile):
+    return (tile[0], tile[1] - 1)
+def in_range(tile):
+    return left <= tile[0] <= right and min_height <= tile[1] <= max_height
 
+def find_right_edge(current_tile):
+    right_tile = current_tile
+    under_tile = under(right_tile)
+    while in_range(right_tile) and right_tile not in clay and (under_tile in clay or under_tile in settled_water):
+        right_tile = right_of(right_tile)
+        under_tile = under(right_tile)
+    if right_tile in clay:
+        return left_of(right_tile), True
+    else:
+        return right_tile, False
+
+def find_left_edge(current_tile):
+    left_tile = current_tile
+    under_tile = under(left_tile)
+    while in_range(left_tile) and left_tile not in clay and (under_tile in clay or under_tile in settled_water):
+        left_tile = left_of(left_tile)
+        under_tile = under(left_tile)
+    if left_tile in clay:
+        return right_of(left_tile), True
+    else:
+        return left_tile, False
+
+starting_tile = (500, 0)
+moving_water = []
+touched = set()
+
+iterations = 0
+spilled_water = set()
+last_spilled_water = None
+while last_spilled_water is None or last_spilled_water != spilled_water:
+    print('here')
+    last_spilled_water = spilled_water
+    spilled_water = set()
+    while not spilled_water or moving_water:
+        water = moving_water.pop() if moving_water else starting_tile
+
+        left_edge, left_enclosed = find_left_edge(water)
+        right_edge, right_enclosed = find_right_edge(water)
+
+        for x in range(left_edge[0], right_edge[0] + 1):
+            cell = (x, water[1])
+            if left_enclosed and right_enclosed:
+                settled_water.add(cell)
+            if in_range(cell): 
+                touched.add(cell)
+
+        under_left = under(left_edge)
+        if not left_enclosed:
+            if in_range(under_left):
+                moving_water.append(under_left)
+            else:
+                spilled_water.add(under_left)
+
+        under_right = under(right_edge)
+        if not right_enclosed:
+            if in_range(under_right):
+                if not moving_water or moving_water[-1] != under_right:
+                    moving_water.append(under_right)
+            else:
+                spilled_water.add(under_right)
+        iterations += 1
 print(len(touched))
