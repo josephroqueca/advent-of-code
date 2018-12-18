@@ -17,7 +17,7 @@ cd $script_dir
 run_python () {
     source_file=p$part.py
     printf "Running $script_dir/$source_file\n-----\n"
-    python3 $source_file
+    python $source_file
 }
 
 run_haskell () {
