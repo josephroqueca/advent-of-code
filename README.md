@@ -64,7 +64,7 @@ If a problem hasn't been solved with your language of choice, then the script wi
 | 17 | ✅ | | |
 | 18 | ✅ | | |
 | 19 | ✅ | | |
-| 20 | | | |
+| 20 | ✅ | | |
 | 21 | | | |
 | 22 | ✅ | | |
 | 23 | | | |
