@@ -1,0 +1,173 @@
+#!/usr/bin/env python3
+
+from argparse import ArgumentParser
+from enum import Enum
+from os import path, makedirs
+from shutil import copy
+import re
+import sys
+
+cache_file = '.aoc_cache'
+
+class AOC(object):
+  def __init__(self):
+    self._language = None
+    self._year = None
+    self._day = None
+    self._part = None
+    if path.exists(cache_file):
+      with open(cache_file) as cache:
+        lines = cache.readlines()
+        self._language = SupportedLanguage.parse(lines[0][lines[0].index('=') + 1:].strip())
+        self._year = lines[1][lines[1].index('=') + 1:].strip()
+        self._day = lines[2][lines[2].index('=') + 1:].strip()
+        self._part = lines[3][lines[3].index('=') + 1:].strip()
+
+        if int(self._day) < 10:
+          self._day = '0{day}'.format(day=int(self._day))
+
+  def __str__(self):
+    print(self._language, self._year, self._day, self._part)
+    return 'language={language}\nyear={year}\nday={day}\npart={part}'.format(
+      language=self._language.id(),
+      year=self._year,
+      day=self._day,
+      part=self._part
+    )
+
+  def working_dir(self):
+    return path.join(self._year, 'day_{day}'.format(day=self._day), self._language)
+
+  def create(self):
+    self._validate_state()
+
+    starter_file = path.join(
+      '.',
+      'util',
+      self._language.id(),
+      'starter.{extension}'.format(extension=self._language.extension())
+    )
+    supporting_dir = path.join('.', 'util', self._language.id(), 'supporting_files')
+
+    makedirs(path.join(self.working_dir(), self._language.src_prefix()), exist_ok=True)
+
+    if path.exists(starter_file):
+      for dest in ['p1', 'p2']:
+        copy(starter_file, path.join(
+          self.working_dir(),
+          self._language.src_prefix(),
+          '{dest}.{extension}'.format(dest=dest, extension=self._language.extension())
+        ))
+
+    if path.exists(supporting_dir):
+      copy(supporting_dir, self.working_dir())
+
+    pass
+
+  def fetch(self):
+    self._validate_state()
+    print('Fetched', self)
+    pass
+
+  def run(self):
+    self._validate_state()
+    print('Ran', self)
+    pass
+
+  def set_env(self, language, year, day, part):
+    supported_language = SupportedLanguage.parse(language)
+    if supported_language:
+      self._language = language
+    if year:
+      self._year = year
+    if day:
+      self._day = day
+      if int(self._day) < 10:
+        self._day = '0{day}'.format(day=int(self._day))
+    if part:
+      self._part = part
+
+  def cache_env(self):
+    try:
+      self._validate_state()
+      with open(cache_file, 'w') as cache:
+        cache.write(str(self))
+    except:
+      pass
+
+  def _validate_state(self):
+    if not self._language:
+      raise ValueError('Language is not available')
+    if not self._year:
+      raise ValueError('Year is not available')
+    if not self._day:
+      raise ValueError('Day is not available')
+    if not self._part:
+      raise ValueError('Part is not available')
+
+def main(args=None):
+  if args is None:
+    args = sys.argv[1:]
+
+  parser = ArgumentParser(description='Advent of Code')
+
+  parser.add_argument(
+    '--create',
+    action='store_true',
+    help='Create the files and directories for the language/year/day'
+  )
+
+  parser.add_argument(
+    '--fetch',
+    action='store_true',
+    help='Fetch the input for the year/day'
+  )
+
+  parser.add_argument(
+    '--run',
+    action='store_true',
+    help='Run the program for the language/year/day/part'
+  )
+
+  parser.add_argument('--language', help='Set the current language. Cached for future runs')
+  parser.add_argument('--year', help='Sets the current year. Cached for future runs')
+  parser.add_argument('--day', help='Sets the current day. Cached for future runs')
+  parser.add_argument('--part', help='Sets the current part. Cached for future runs')
+  parsed = parser.parse_args()
+
+  aoc = AOC()
+  aoc.set_env(parsed.language, parsed.year, parsed.day, parsed.part)
+
+  if parsed.create:
+    aoc.create()
+  elif parsed.fetch:
+    aoc.fetch()
+  elif parsed.run:
+    aoc.run()
+
+  aoc.cache_env()
+
+class SupportedLanguage(Enum):
+  HASKELL = ("haskell", "hs", "")
+  PYTHON = ("python", "py", "")
+  RUBY = ("ruby", "rb", "")
+  RUST = ("rust", "rs", "src")
+
+  def id(self):
+    return self.value[0]
+
+  def extension(self):
+    return self.value[1]
+
+  def src_prefix(self):
+    return self.value[2]
+
+  @classmethod
+  def parse(cls, language):
+    for lang in list(cls):
+      if language == lang.id():
+        return lang
+    return None
+
+if __name__ == "__main__":
+  main()
