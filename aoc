@@ -185,10 +185,10 @@ def main(args=None):
 ##################################################
 
 class SupportedLanguage(Enum):
-  HASKELL = ("haskell", "hs", "")
-  PYTHON = ("python", "py", "")
-  RUBY = ("ruby", "rb", "")
-  RUST = ("rust", "rs", "src")
+  HASKELL = ("haskell", "hs", "", "hsx")
+  PYTHON = ("python", "py", "", "")
+  RUBY = ("ruby", "rb", "", "")
+  RUST = ("rust", "rs", "src", "")
 
   @classmethod
   def parse(cls, language):
@@ -206,45 +206,45 @@ class SupportedLanguage(Enum):
   def src_prefix(self):
     return self.value[2]
 
+  def compile_extension(self):
+    return self.value[3]
+
+  def _source_file(self, year, day, part):
+    return os.path.join(
+      year,
+      'day_{day}'.format(day=day),
+      self.id(),
+      'p{part}.{extension}'.format(part=part, extension=self.extension())
+    )
+
+  def _compile_file(self, year, day, part):
+    return os.path.join(
+      year,
+      'day_{day}'.format(day=day),
+      self.id(),
+      'p{part}.{extension}'.format(part=part, extension=self.compile_extension())
+    )
+
+  def _compile(self, year, day, part, command):
+    subprocess.run(command + [
+      self._source_file(year, day, part),
+      '-o',
+      self._compile_file(year, day, part),
+    ])
+
+  def _execute(self, command, file):
+    subprocess.run(command + [file])
+
   def run(self, year, day, part):
     if self in [SupportedLanguage.PYTHON, SupportedLanguage.RUBY]:
-      subprocess.run([
-        self.id(),
-        os.path.join(
-          year,
-          'day_{day}'.format(day=day),
-          self.id(),
-          'p{part}.{extension}'.format(part=part, extension=self.extension())
-        ),
-      ])
+      self._execute([self.id()], self._source_file(year, day, part))
     elif self == SupportedLanguage.HASKELL:
-      subprocess.run([
+      self._compile(year, day, part, [
         'stack',
         'ghc',
         '--',
-        os.path.join(
-          year,
-          'day_{day}'.format(day=day),
-          self.id(),
-          'p{part}.{extension}'.format(part=part, extension=self.extension())
-        ),
-        '-o',
-        os.path.join(
-          year,
-          'day_{day}'.format(day=day),
-          self.id(),
-          'p{part}.hsx'.format(part=part)
-        ),
       ])
-      subprocess.run([
-        os.path.join(
-          '.',
-          year,
-          'day_{day}'.format(day=day),
-          self.id(),
-          'p{part}.hsx'.format(part=part)
-        ),
-      ])
+      self._execute([], self._compile_file(year, day, part))
     elif self == SupportedLanguage.RUST:
       print('Running rust')
 
