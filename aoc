@@ -7,6 +7,7 @@ import re
 import os
 import requests
 import sys
+import subprocess
 
 cache_file = '.aoc_cache'
 
@@ -86,7 +87,7 @@ class AOC(object):
 
   def run(self):
     self._validate_state()
-    pass
+    self._language.run(self._year, self._day, self._part)
 
   def __str__(self):
     return 'language={language}\nyear={year}\nday={day}\npart={part}\nsession={session}'.format(
@@ -204,6 +205,22 @@ class SupportedLanguage(Enum):
 
   def src_prefix(self):
     return self.value[2]
+
+  def run(self, year, day, part):
+    if self in [SupportedLanguage.PYTHON, SupportedLanguage.RUBY]:
+      subprocess.run([
+        self.id(),
+        os.path.join(
+          year,
+          'day_{day}'.format(day=day),
+          self.id(),
+          'p{part}.{extension}'.format(part=part, extension=self.extension())
+        )
+      ])
+    elif self == SupportedLanguage.HASKELL:
+      print('Running haskell')
+    elif self == SupportedLanguage.RUST:
+      print('Running rust')
 
 def copy_directory(src, dest):
   for src_dir, dirs, files in os.walk(src):
