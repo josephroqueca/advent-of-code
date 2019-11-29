@@ -215,10 +215,36 @@ class SupportedLanguage(Enum):
           'day_{day}'.format(day=day),
           self.id(),
           'p{part}.{extension}'.format(part=part, extension=self.extension())
-        )
+        ),
       ])
     elif self == SupportedLanguage.HASKELL:
-      print('Running haskell')
+      subprocess.run([
+        'stack',
+        'ghc',
+        '--',
+        os.path.join(
+          year,
+          'day_{day}'.format(day=day),
+          self.id(),
+          'p{part}.{extension}'.format(part=part, extension=self.extension())
+        ),
+        '-o',
+        os.path.join(
+          year,
+          'day_{day}'.format(day=day),
+          self.id(),
+          'p{part}.hsx'.format(part=part)
+        ),
+      ])
+      subprocess.run([
+        os.path.join(
+          '.',
+          year,
+          'day_{day}'.format(day=day),
+          self.id(),
+          'p{part}.hsx'.format(part=part)
+        ),
+      ])
     elif self == SupportedLanguage.RUST:
       print('Running rust')
 
