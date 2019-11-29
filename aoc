@@ -2,9 +2,9 @@
 
 from argparse import ArgumentParser
 from enum import Enum
-from os import path, makedirs
 from shutil import copy
 import re
+import os
 import sys
 
 cache_file = '.aoc_cache'
@@ -15,7 +15,7 @@ class AOC(object):
     self._year = None
     self._day = None
     self._part = None
-    if path.exists(cache_file):
+    if os.path.exists(cache_file):
       with open(cache_file) as cache:
         lines = cache.readlines()
         self._language = SupportedLanguage.parse(lines[0][lines[0].index('=') + 1:].strip())
@@ -36,31 +36,31 @@ class AOC(object):
     )
 
   def working_dir(self):
-    return path.join(self._year, 'day_{day}'.format(day=self._day), self._language)
+    return os.path.join(self._year, 'day_{day}'.format(day=self._day), self._language.id())
 
   def create(self):
     self._validate_state()
 
-    starter_file = path.join(
+    starter_file = os.path.join(
       '.',
       'util',
       self._language.id(),
       'starter.{extension}'.format(extension=self._language.extension())
     )
-    supporting_dir = path.join('.', 'util', self._language.id(), 'supporting_files')
+    supporting_dir = os.path.join('.', 'util', self._language.id(), 'supporting_files')
 
-    makedirs(path.join(self.working_dir(), self._language.src_prefix()), exist_ok=True)
+    os.makedirs(os.path.join(self.working_dir(), self._language.src_prefix()), exist_ok=True)
 
-    if path.exists(starter_file):
+    if os.path.exists(starter_file):
       for dest in ['p1', 'p2']:
-        copy(starter_file, path.join(
+        copy(starter_file, os.path.join(
           self.working_dir(),
           self._language.src_prefix(),
           '{dest}.{extension}'.format(dest=dest, extension=self._language.extension())
         ))
 
-    if path.exists(supporting_dir):
-      copy(supporting_dir, self.working_dir())
+    if os.path.exists(supporting_dir):
+      copy_directory(supporting_dir, self.working_dir())
 
     pass
 
@@ -77,7 +77,7 @@ class AOC(object):
   def set_env(self, language, year, day, part):
     supported_language = SupportedLanguage.parse(language)
     if supported_language:
-      self._language = language
+      self._language = supported_language
     if year:
       self._year = year
     if day:
@@ -168,6 +168,18 @@ class SupportedLanguage(Enum):
       if language == lang.id():
         return lang
     return None
+
+def copy_directory(src, dest):
+  for src_dir, dirs, files in os.walk(src):
+    dst_dir = src_dir.replace(src, dest, 1)
+    if not os.path.exists(dst_dir):
+      os.makedirs(dst_dir)
+    for f in files:
+      src_file = os.path.join(src_dir, f)
+      dst_file = os.path.join(dst_dir, f)
+      if os.path.exists(dst_file):
+        os.remove(dst_file)
+      copy(src_file, dst_dir)
 
 if __name__ == "__main__":
   main()
