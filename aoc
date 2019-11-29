@@ -5,12 +5,17 @@ from enum import Enum
 from shutil import copy
 import re
 import os
+import requests
 import sys
 
 cache_file = '.aoc_cache'
 
+# AoC
+##################################################
+
 class AOC(object):
   def __init__(self):
+    self._session = None
     self._language = None
     self._year = None
     self._day = None
@@ -22,24 +27,19 @@ class AOC(object):
         self._year = lines[1][lines[1].index('=') + 1:].strip()
         self._day = lines[2][lines[2].index('=') + 1:].strip()
         self._part = lines[3][lines[3].index('=') + 1:].strip()
+        self._session = lines[4][lines[4].index('=') + 1:].strip()
 
         if int(self._day) < 10:
           self._day = '0{day}'.format(day=int(self._day))
 
-  def __str__(self):
-    print(self._language, self._year, self._day, self._part)
-    return 'language={language}\nyear={year}\nday={day}\npart={part}'.format(
-      language=self._language.id(),
-      year=self._year,
-      day=self._day,
-      part=self._part
-    )
-
-  def working_dir(self):
-    return os.path.join(self._year, 'day_{day}'.format(day=self._day), self._language.id())
+  # Create
+  ##################################################
 
   def create(self):
     self._validate_state()
+
+    if os.path.exists(self.working_dir()):
+      return
 
     starter_file = os.path.join(
       '.',
@@ -62,19 +62,47 @@ class AOC(object):
     if os.path.exists(supporting_dir):
       copy_directory(supporting_dir, self.working_dir())
 
-    pass
+  # Fetch
+  ##################################################
 
   def fetch(self):
-    self._validate_state()
-    print('Fetched', self)
-    pass
+    self._validate_state(with_session=True)
+
+    input_file = os.path.join('.', self._year, 'day_{day}'.format(day=self._day), 'input.txt')
+    if os.path.exists(input_file):
+      return
+
+    cookies = { 'session': self._session }
+    r = requests.get(
+      'https://adventofcode.com/{year}/day/{day}/input'.format(year=self._year, day=self._day),
+      cookies=cookies
+    )
+
+    with open(input_file, 'w') as f:
+      f.write(r.text)
+
+  # Run
+  ##################################################
 
   def run(self):
     self._validate_state()
-    print('Ran', self)
     pass
 
-  def set_env(self, language, year, day, part):
+  def __str__(self):
+    return 'language={language}\nyear={year}\nday={day}\npart={part}\nsession={session}'.format(
+      language=self._language.id(),
+      year=self._year,
+      day=self._day,
+      part=self._part,
+      session=self._session
+    )
+
+  def working_dir(self):
+    return os.path.join(self._year, 'day_{day}'.format(day=self._day), self._language.id())
+
+  def set_env(self, session, language, year, day, part):
+    if session:
+      self._session = session
     supported_language = SupportedLanguage.parse(language)
     if supported_language:
       self._language = supported_language
@@ -95,7 +123,9 @@ class AOC(object):
     except:
       pass
 
-  def _validate_state(self):
+  def _validate_state(self, with_session=False):
+    if with_session and not self._session:
+      raise ValueError('Session is not available')
     if not self._language:
       raise ValueError('Language is not available')
     if not self._year:
@@ -104,6 +134,9 @@ class AOC(object):
       raise ValueError('Day is not available')
     if not self._part:
       raise ValueError('Part is not available')
+
+# Main
+##################################################
 
 def main(args=None):
   if args is None:
@@ -129,6 +162,7 @@ def main(args=None):
     help='Run the program for the language/year/day/part'
   )
 
+  parser.add_argument('--session', help='Set your session. Cached for future runs')
   parser.add_argument('--language', help='Set the current language. Cached for future runs')
   parser.add_argument('--year', help='Sets the current year. Cached for future runs')
   parser.add_argument('--day', help='Sets the current day. Cached for future runs')
@@ -136,22 +170,31 @@ def main(args=None):
   parsed = parser.parse_args()
 
   aoc = AOC()
-  aoc.set_env(parsed.language, parsed.year, parsed.day, parsed.part)
+  aoc.set_env(parsed.session, parsed.language, parsed.year, parsed.day, parsed.part)
 
-  if parsed.create:
-    aoc.create()
-  elif parsed.fetch:
+  aoc.create()
+  if parsed.fetch:
     aoc.fetch()
   elif parsed.run:
     aoc.run()
 
   aoc.cache_env()
 
+# SupportedLanguage
+##################################################
+
 class SupportedLanguage(Enum):
   HASKELL = ("haskell", "hs", "")
   PYTHON = ("python", "py", "")
   RUBY = ("ruby", "rb", "")
   RUST = ("rust", "rs", "src")
+
+  @classmethod
+  def parse(cls, language):
+    for lang in list(cls):
+      if language == lang.id():
+        return lang
+    return None
 
   def id(self):
     return self.value[0]
@@ -161,13 +204,6 @@ class SupportedLanguage(Enum):
 
   def src_prefix(self):
     return self.value[2]
-
-  @classmethod
-  def parse(cls, language):
-    for lang in list(cls):
-      if language == lang.id():
-        return lang
-    return None
 
 def copy_directory(src, dest):
   for src_dir, dirs, files in os.walk(src):
