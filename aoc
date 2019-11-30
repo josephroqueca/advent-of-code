@@ -11,6 +11,26 @@ import subprocess
 
 cache_file = '.aoc_cache'
 
+# Params
+##################################################
+
+class Challenge(object):
+  def __init__(self, year, day, part):
+    self.year = year
+    self.day = day
+    self.part = part
+
+    if int(self.day) < 10:
+        self.day = '0{day}'.format(day=int(self.day))
+
+  def _validate_state(self):
+    if not self.year:
+      raise ValueError('Year is not available')
+    if not self.day:
+      raise ValueError('Day is not available')
+    if not self.part:
+      raise ValueError('Part is not available')
+
 # AoC
 ##################################################
 
@@ -18,20 +38,26 @@ class AOC(object):
   def __init__(self):
     self._session = None
     self._language = None
-    self._year = None
-    self._day = None
-    self._part = None
+    self.challenge = None
     if os.path.exists(cache_file):
       with open(cache_file) as cache:
         lines = cache.readlines()
         self._language = SupportedLanguage.parse(lines[0][lines[0].index('=') + 1:].strip())
-        self._year = lines[1][lines[1].index('=') + 1:].strip()
-        self._day = lines[2][lines[2].index('=') + 1:].strip()
-        self._part = lines[3][lines[3].index('=') + 1:].strip()
         self._session = lines[4][lines[4].index('=') + 1:].strip()
 
-        if int(self._day) < 10:
-          self._day = '0{day}'.format(day=int(self._day))
+        year = lines[1][lines[1].index('=') + 1:].strip()
+        day = lines[2][lines[2].index('=') + 1:].strip()
+        part = lines[3][lines[3].index('=') + 1:].strip()
+        self.challenge = Challenge(year, day, part)
+
+    if self.is_valid_state():
+      self.working_dir = os.path.join(
+        self.challenge.year,
+        'day_{day}'.format(day=self.challenge.day),
+        self._language.id()
+      )
+    else:
+      self.working_dir = None
 
   # Create
   ##################################################
@@ -39,7 +65,7 @@ class AOC(object):
   def create(self):
     self._validate_state()
 
-    if os.path.exists(self.working_dir()):
+    if os.path.exists(self.working_dir):
       return
 
     starter_file = os.path.join(
@@ -50,18 +76,18 @@ class AOC(object):
     )
     supporting_dir = os.path.join('.', 'util', self._language.id(), 'supporting_files')
 
-    os.makedirs(os.path.join(self.working_dir(), self._language.src_prefix()), exist_ok=True)
+    os.makedirs(os.path.join(self.working_dir, self._language.src_prefix()), exist_ok=True)
 
     if os.path.exists(starter_file):
       for dest in ['p1', 'p2']:
         copy(starter_file, os.path.join(
-          self.working_dir(),
+          self.working_dir,
           self._language.src_prefix(),
           '{dest}.{extension}'.format(dest=dest, extension=self._language.extension())
         ))
 
     if os.path.exists(supporting_dir):
-      copy_directory(supporting_dir, self.working_dir())
+      copy_directory(supporting_dir, self.working_dir)
 
   # Fetch
   ##################################################
@@ -69,13 +95,13 @@ class AOC(object):
   def fetch(self):
     self._validate_state(with_session=True)
 
-    input_file = os.path.join('.', self._year, 'day_{day}'.format(day=self._day), 'input.txt')
+    input_file = os.path.join('.', self.challenge.year, 'day_{day}'.format(day=self.challenge.day), 'input.txt')
     if os.path.exists(input_file):
       return
 
     cookies = { 'session': self._session }
     r = requests.get(
-      'https://adventofcode.com/{year}/day/{day}/input'.format(year=self._year, day=self._day),
+      'https://adventofcode.com/{year}/day/{day}/input'.format(year=self.challenge.year, day=self.challenge.day),
       cookies=cookies
     )
 
@@ -87,19 +113,16 @@ class AOC(object):
 
   def run(self):
     self._validate_state()
-    self._language.run(self._year, self._day, self._part)
+    self._language.run(self.challenge)
 
   def __str__(self):
     return 'language={language}\nyear={year}\nday={day}\npart={part}\nsession={session}'.format(
       language=self._language.id(),
-      year=self._year,
-      day=self._day,
-      part=self._part,
+      year=self.challenge.year,
+      day=self.challenge.day,
+      part=self.challenge.part,
       session=self._session
     )
-
-  def working_dir(self):
-    return os.path.join(self._year, 'day_{day}'.format(day=self._day), self._language.id())
 
   def set_env(self, session, language, year, day, part):
     if session:
@@ -108,13 +131,13 @@ class AOC(object):
     if supported_language:
       self._language = supported_language
     if year:
-      self._year = year
+      self.challenge.year = year
     if day:
-      self._day = day
-      if int(self._day) < 10:
-        self._day = '0{day}'.format(day=int(self._day))
+      self.challenge.day = day
+      if int(self.challenge.day) < 10:
+        self.challenge.day = '0{day}'.format(day=int(self.challenge.day))
     if part:
-      self._part = part
+      self.challenge.part = part
 
   def cache_env(self):
     try:
@@ -124,17 +147,19 @@ class AOC(object):
     except:
       pass
 
+  def is_valid_state(self, with_session=False):
+    try:
+      self._validate_state(with_session=with_session)
+      return True
+    except:
+      return False
+
   def _validate_state(self, with_session=False):
     if with_session and not self._session:
       raise ValueError('Session is not available')
     if not self._language:
       raise ValueError('Language is not available')
-    if not self._year:
-      raise ValueError('Year is not available')
-    if not self._day:
-      raise ValueError('Day is not available')
-    if not self._part:
-      raise ValueError('Part is not available')
+    self.challenge._validate_state()
 
 # Main
 ##################################################
@@ -209,42 +234,42 @@ class SupportedLanguage(Enum):
   def compile_extension(self):
     return self.value[3]
 
-  def _source_file(self, year, day, part):
+  def _source_file(self, challenge):
     return os.path.join(
-      year,
-      'day_{day}'.format(day=day),
+      challenge.year,
+      'day_{day}'.format(day=challenge.day),
       self.id(),
-      'p{part}.{extension}'.format(part=part, extension=self.extension())
+      'p{part}.{extension}'.format(part=challenge.part, extension=self.extension())
     )
 
-  def _compile_file(self, year, day, part):
+  def _compile_file(self, challenge):
     return os.path.join(
-      year,
-      'day_{day}'.format(day=day),
+      challenge.year,
+      'day_{day}'.format(day=challenge.day),
       self.id(),
-      'p{part}.{extension}'.format(part=part, extension=self.compile_extension())
+      'p{part}.{extension}'.format(part=challenge.part, extension=self.compile_extension())
     )
 
-  def _compile(self, year, day, part, command):
+  def _compile(self, challenge, command):
     subprocess.run(command + [
-      self._source_file(year, day, part),
+      self._source_file(challenge),
       '-o',
-      self._compile_file(year, day, part),
+      self._compile_file(challenge),
     ])
 
   def _execute(self, command, file):
     subprocess.run(command + [file])
 
-  def run(self, year, day, part):
+  def run(self, challenge):
     if self in [SupportedLanguage.PYTHON, SupportedLanguage.RUBY]:
-      self._execute([self.id()], self._source_file(year, day, part))
+      self._execute([self.id()], self._source_file(challenge))
     elif self == SupportedLanguage.HASKELL:
-      self._compile(year, day, part, [
+      self._compile(challenge, [
         'stack',
         'ghc',
         '--',
       ])
-      self._execute([], self._compile_file(year, day, part))
+      self._execute([], self._compile_file(challenge))
     elif self == SupportedLanguage.RUST:
       print('Running rust')
 
