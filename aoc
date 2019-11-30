@@ -113,7 +113,7 @@ class AOC(object):
 
   def run(self):
     self._validate_state()
-    self._language.run(self.challenge)
+    self._language.run(self.working_dir, self.challenge)
 
   def __str__(self):
     return 'language={language}\nyear={year}\nday={day}\npart={part}\nsession={session}'.format(
@@ -260,7 +260,7 @@ class SupportedLanguage(Enum):
   def _execute(self, command, file):
     subprocess.run(command + [file])
 
-  def run(self, challenge):
+  def run(self, directory, challenge):
     if self in [SupportedLanguage.PYTHON, SupportedLanguage.RUBY]:
       self._execute([self.id()], self._source_file(challenge))
     elif self == SupportedLanguage.HASKELL:
@@ -271,7 +271,26 @@ class SupportedLanguage(Enum):
       ])
       self._execute([], self._compile_file(challenge))
     elif self == SupportedLanguage.RUST:
-      print('Running rust')
+      with cd(directory):
+        subprocess.run([
+          'cargo',
+          'run',
+          challenge.part,
+        ])
+
+# Change Directory
+##################################################
+
+class cd:
+  def __init__(self, newPath):
+    self.newPath = os.path.expanduser(newPath)
+
+  def __enter__(self):
+    self.savedPath = os.getcwd()
+    os.chdir(self.newPath)
+
+  def __exit__(self, etype, value, traceback):
+    os.chdir(self.savedPath)
 
 def copy_directory(src, dest):
   for src_dir, dirs, files in os.walk(src):
