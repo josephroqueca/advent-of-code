@@ -101,7 +101,7 @@ class AOC(object):
 
     cookies = { 'session': self._session }
     r = requests.get(
-      'https://adventofcode.com/{year}/day/{day}/input'.format(year=self.challenge.year, day=self.challenge.day),
+      'https://adventofcode.com/{year}/day/{day}/input'.format(year=self.challenge.year, day=int(self.challenge.day)),
       cookies=cookies
     )
 
