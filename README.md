@@ -14,7 +14,7 @@ If a problem hasn't been solved with your language of choice, then the script wi
 
 |  Day  |  Python  |  Haskell  |  Ruby  |  Rust  |
 |:-----:|:--------:|:---------:|:------:|:------:|
-|  1 | | | | |
+|  1 | | | | ✅ |
 |  2 | | | | |
 |  3 | | | | |
 |  4 | | | | |
