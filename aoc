@@ -139,6 +139,15 @@ class AOC(object):
     if part:
       self.challenge.part = part
 
+    if self.is_valid_state():
+      self.working_dir = os.path.join(
+        self.challenge.year,
+        'day_{day}'.format(day=self.challenge.day),
+        self._language.id()
+      )
+    else:
+      self.working_dir = None
+
   def cache_env(self):
     try:
       self._validate_state()
