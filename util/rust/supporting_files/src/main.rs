@@ -37,7 +37,7 @@ fn get_test_input() -> String {
         return fs::read_to_string(input_file).unwrap();
     }
 
-    return String::new();
+    String::new()
 }
 
 fn get_input() -> String {
@@ -47,5 +47,5 @@ fn get_input() -> String {
         return fs::read_to_string(input_file).unwrap();
     }
 
-    return String::new();
+    String::new()
 }

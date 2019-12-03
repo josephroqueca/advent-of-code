@@ -5,6 +5,10 @@ use std::path::Path;
 /* Part 1
 ================================================= */
 
+fn get_numbers<'a>(text: &'a str) -> impl Iterator<Item = usize> + 'a {
+    text.split(",").map(|x| x.parse::<usize>().unwrap())
+}
+
 fn part_one(input: String) {
     let mut intcode = get_numbers(&input).collect::<Vec<_>>();
     intcode[1] = 12;
@@ -72,16 +76,6 @@ fn main() {
     }
 }
 
-fn get_test_input() -> String {
-    let input_file = Path::new("../test.txt");
-
-    if input_file.exists() {
-        return fs::read_to_string(input_file).unwrap();
-    }
-
-    return String::new();
-}
-
 fn get_input() -> String {
     let input_file = Path::new("../input.txt");
 
@@ -89,9 +83,5 @@ fn get_input() -> String {
         return fs::read_to_string(input_file).unwrap();
     }
 
-    return String::new();
-}
-
-fn get_numbers<'a>(text: &'a str) -> impl Iterator<Item = usize> + 'a {
-    text.split(",").map(|x| x.parse::<usize>().unwrap())
+    String::new()
 }

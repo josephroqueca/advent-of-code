@@ -48,16 +48,6 @@ fn main() {
     }
 }
 
-fn get_test_input() -> String {
-    let input_file = Path::new("../test.txt");
-
-    if input_file.exists() {
-        return fs::read_to_string(input_file).unwrap();
-    }
-
-    return String::new();
-}
-
 fn get_input() -> String {
     let input_file = Path::new("../input.txt");
 
@@ -65,5 +55,5 @@ fn get_input() -> String {
         return fs::read_to_string(input_file).unwrap();
     }
 
-    return String::new();
+    String::new()
 }
