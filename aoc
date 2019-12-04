@@ -113,9 +113,31 @@ class AOC(object):
   # Run
   ##################################################
 
-  def run(self):
+  def run(self, save):
     self._validate_state()
-    self._language.run(self.working_dir, self.challenge)
+    process = self._language.run(self.working_dir, self.challenge)
+    response = process.stdout.decode('utf-8')
+
+    print('-----\n{response}-----\n'.format(response=response))
+
+    output_file = os.path.join('.', self.challenge.year, 'day_{day}'.format(day=self.challenge.day), 'output.txt')
+
+    if response and save:
+      print('Saving output: {response}'.format(response=response))
+      with open(output_file, 'w') as solution_file:
+        solution_file.write(response)
+    else:
+      if os.path.exists(output_file):
+        with open(output_file) as solution_file:
+          solution = solution_file.read()
+          if solution == response:
+            print('The solution appears correct!')
+          else:
+            print('Solution does not match one found in {file}'.format(file=output_file))
+            print('\tExpected: {solution}'.format(solution=solution))
+            print('\tReceived: {response}'.format(response=response))
+      else:
+        print('Solution does not exist for validation. Skipping...')
 
   def __str__(self):
     return 'language={language}\nyear={year}\nday={day}\npart={part}\nsession={session}'.format(
@@ -202,6 +224,12 @@ def main(args=None):
     help='Run the program for the language/year/day/part'
   )
 
+  parser.add_argument(
+    '--save',
+    action='store_true',
+    help='Save the output.'
+  )
+
   parser.add_argument('--session', help='Set your session. Cached for future runs')
   parser.add_argument('--language', help='Set the current language. Cached for future runs')
   parser.add_argument('--year', help='Sets the current year. Cached for future runs')
@@ -216,7 +244,7 @@ def main(args=None):
   if parsed.fetch:
     aoc.fetch()
   elif parsed.run:
-    aoc.run()
+    aoc.run(parsed.save)
 
   aoc.cache_env()
 
@@ -272,25 +300,22 @@ class SupportedLanguage(Enum):
     ])
 
   def _execute(self, command, file):
-    subprocess.run(command + [file])
+    return subprocess.run(command + [file], capture_output=True)
 
   def run(self, directory, challenge):
     if self in [SupportedLanguage.PYTHON, SupportedLanguage.RUBY]:
-      self._execute([self.id()], self._source_file(challenge))
+      return self._execute([self.id()], self._source_file(challenge))
     elif self == SupportedLanguage.HASKELL:
       self._compile(challenge, [
         'stack',
         'ghc',
         '--',
       ])
-      self._execute([], self._compile_file(challenge))
+      return self._execute([], self._compile_file(challenge))
     elif self == SupportedLanguage.RUST:
       with cd(directory):
-        subprocess.run([
-          'cargo',
-          'run',
-          challenge.part,
-        ])
+        return self._execute(['cargo', 'run'], challenge.part)
+    return None
 
 # Change Directory
 ##################################################
