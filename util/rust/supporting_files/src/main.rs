@@ -13,7 +13,7 @@ fn part_one(input: String) {
 ================================================= */
 
 fn part_two(input: String) {
-  println!("{}", input);
+    println!("{}", input);
 }
 
 /* Main + Input
@@ -26,7 +26,7 @@ fn main() {
     match part.as_str() {
         "1" => part_one(input),
         "2" => part_two(input),
-        _ => println!("Only parts 1 and 2 exist...")
+        _ => println!("Only parts 1 and 2 exist..."),
     }
 }
 
