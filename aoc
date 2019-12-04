@@ -9,6 +9,7 @@ import os
 import requests
 import sys
 import subprocess
+import webbrowser
 
 cache_file = '.aoc_cache'
 
@@ -120,7 +121,7 @@ class AOC(object):
 
     print('-----\n{response}-----\n'.format(response=response))
 
-    output_file = os.path.join('.', self.challenge.year, 'day_{day}'.format(day=self.challenge.day), 'output.txt')
+    output_file = os.path.join('.', self.challenge.year, 'day_{day}'.format(day=self.challenge.day), 'output_{part}.txt'.format(part=self.challenge.part))
 
     if response and save:
       print('Saving output: {response}'.format(response=response))
@@ -138,6 +139,14 @@ class AOC(object):
             print('\tReceived: {response}'.format(response=response))
       else:
         print('Solution does not exist for validation. Skipping...')
+
+  # Open
+  ##################################################
+
+  def open(self):
+    self._validate_state()
+    url = 'https://adventofcode.com/{year}/day/{day}'.format(year=self.challenge.year, day=int(self.challenge.day))
+    webbrowser.open(url, new=2)
 
   def __str__(self):
     return 'language={language}\nyear={year}\nday={day}\npart={part}\nsession={session}'.format(
@@ -227,7 +236,13 @@ def main(args=None):
   parser.add_argument(
     '--save',
     action='store_true',
-    help='Save the output.'
+    help='Save the output'
+  )
+
+  parser.add_argument(
+    '--open',
+    action='store_true',
+    help='Open the challenge in the browser'
   )
 
   parser.add_argument('--session', help='Set your session. Cached for future runs')
@@ -245,6 +260,9 @@ def main(args=None):
     aoc.fetch()
   elif parsed.run:
     aoc.run(parsed.save)
+
+  if parsed.open:
+    aoc.open()
 
   aoc.cache_env()
 
