@@ -3,6 +3,7 @@
 from argparse import ArgumentParser
 from enum import Enum
 from shutil import copy
+from datetime import datetime
 import re
 import os
 import requests
@@ -15,10 +16,11 @@ cache_file = '.aoc_cache'
 ##################################################
 
 class Challenge(object):
-  def __init__(self, year, day, part):
-    self.year = year
-    self.day = day
-    self.part = part
+  def __init__(self, year=None, day=None, part=None):
+    now = datetime.now()
+    self.year = year if year else now.year
+    self.day = day if day else now.day
+    self.part = part if part else 1
 
     if int(self.day) < 10:
         self.day = '0{day}'.format(day=int(self.day))
@@ -38,7 +40,7 @@ class AOC(object):
   def __init__(self):
     self._session = None
     self._language = None
-    self.challenge = None
+    self.challenge = Challenge()
     if os.path.exists(cache_file):
       with open(cache_file) as cache:
         lines = cache.readlines()
@@ -130,6 +132,7 @@ class AOC(object):
     supported_language = SupportedLanguage.parse(language)
     if supported_language:
       self._language = supported_language
+
     if year:
       self.challenge.year = year
     if day:
@@ -168,6 +171,8 @@ class AOC(object):
       raise ValueError('Session is not available')
     if not self._language:
       raise ValueError('Language is not available')
+    if not self.challenge:
+      raise ValueError('Year/Day/Part is not available')
     self.challenge._validate_state()
 
 # Main
