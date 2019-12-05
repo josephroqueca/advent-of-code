@@ -55,7 +55,7 @@ class AOC(object):
 
     if self.is_valid_state():
       self.working_dir = os.path.join(
-        self.challenge.year,
+        str(self.challenge.year),
         'day_{day}'.format(day=self.challenge.day),
         self._language.id()
       )
@@ -98,7 +98,7 @@ class AOC(object):
   def fetch(self):
     self._validate_state(with_session=True)
 
-    input_file = os.path.join('.', self.challenge.year, 'day_{day}'.format(day=self.challenge.day), 'input.txt')
+    input_file = os.path.join('.', str(self.challenge.year), 'day_{day}'.format(day=self.challenge.day), 'input.txt')
     if os.path.exists(input_file):
       return
 
@@ -121,7 +121,7 @@ class AOC(object):
 
     print('-----\n{response}-----\n'.format(response=response))
 
-    output_file = os.path.join('.', self.challenge.year, 'day_{day}'.format(day=self.challenge.day), 'output_{part}.txt'.format(part=self.challenge.part))
+    output_file = os.path.join('.', str(self.challenge.year), 'day_{day}'.format(day=self.challenge.day), 'output_{part}.txt'.format(part=self.challenge.part))
 
     if response and save:
       print('Saving output: {response}'.format(response=response))
@@ -175,7 +175,7 @@ class AOC(object):
 
     if self.is_valid_state():
       self.working_dir = os.path.join(
-        self.challenge.year,
+        str(self.challenge.year),
         'day_{day}'.format(day=self.challenge.day),
         self._language.id()
       )
@@ -296,7 +296,7 @@ class SupportedLanguage(Enum):
 
   def _source_file(self, challenge):
     return os.path.join(
-      challenge.year,
+      str(challenge.year),
       'day_{day}'.format(day=challenge.day),
       self.id(),
       'p{part}.{extension}'.format(part=challenge.part, extension=self.extension())
@@ -304,7 +304,7 @@ class SupportedLanguage(Enum):
 
   def _compile_file(self, challenge):
     return os.path.join(
-      challenge.year,
+      str(challenge.year),
       'day_{day}'.format(day=challenge.day),
       self.id(),
       'p{part}.{extension}'.format(part=challenge.part, extension=self.compile_extension())
