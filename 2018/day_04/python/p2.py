@@ -64,4 +64,4 @@ for key in minutes:
         highest_minute = minutes[key]
         best = key
 
-print(best, minutes[best], best[0] * best[1])
+print('The guard ID multiplied by the minute is', best[0] * best[1])

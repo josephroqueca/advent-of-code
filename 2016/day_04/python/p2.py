@@ -59,6 +59,3 @@ for line in puzzle_input:
           print('North Pole objects are stored in room', sector_id)
           north_pole_found = True
           break
-
-if not north_pole_found:
-  print('Could not find where the North Pole objects are stored.')

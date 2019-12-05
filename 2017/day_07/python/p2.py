@@ -19,7 +19,6 @@ class Program(object):
 
         if len(components) > 2:
             self.heldPrograms = [name if name[-1] != "," else name[0:-1] for name in components[3:]]
-            # print(self.heldPrograms)
 
     def total_weight(self):
         weight = self.weight

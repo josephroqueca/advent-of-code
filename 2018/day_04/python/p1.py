@@ -73,4 +73,4 @@ for minute in minutes:
         max_count = minutes[minute]
         max_minute = minute
 
-print(guard_id, max_minute, max_count, guard_id * max_minute)
+print('The guard ID multiplied by the minute is', guard_id * max_minute)

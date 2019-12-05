@@ -1,0 +1,1 @@
+The sum of the sector ids of real rooms is 137896

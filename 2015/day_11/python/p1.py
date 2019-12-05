@@ -61,11 +61,3 @@ while not has_double_doubles() or not  three_straight_letters():
 
 # Printing out the new password
 print('Santa\'s new password should be:', puzzle_input)
-
-# Increment until the password is valid
-increment_by_one(7)
-increment_all_until_valid()
-while not has_double_doubles() or not  three_straight_letters():
-  increment_by_one(7)
-
-print('Santa needs a new password! Now it\'s', puzzle_input)

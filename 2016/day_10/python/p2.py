@@ -76,7 +76,4 @@ while chips_to_pass:
       chips_to_pass.append((result[0], result[1], result[2]))
       chips_to_pass.append((result[3], result[4], result[5]))
 
-print('Contents of bin 0:', output_bins[0])
-print('Contents of bin 1:', output_bins[1])
-print('Contents of bin 2:', output_bins[2])
 print('Product of contents:', output_bins[0][0] * output_bins[1][0] * output_bins[2][0])

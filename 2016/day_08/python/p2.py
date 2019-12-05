@@ -53,9 +53,5 @@ for row in screen:
   for lit in row:
     if lit:
       lit_pixels += 1
-      print('#', end='')
-    else:
-      print('.', end='')
-  print()
 
 print(lit_pixels, 'pixels are lit.')

@@ -1,0 +1,1 @@
+The location of the first collision is: (143, 43)

@@ -1,0 +1,1 @@
+The fuel cell of size 3 with maximum power is: (21, 22)

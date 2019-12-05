@@ -1,0 +1,1 @@
+After 20 generations the sum is: 3221

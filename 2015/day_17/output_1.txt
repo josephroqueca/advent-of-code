@@ -1,0 +1,1 @@
+There are a total of 1304 arrangements of containers to hold 150 litres.

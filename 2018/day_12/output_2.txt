@@ -1,0 +1,1 @@
+After 50,000,000,000 generations the sum is: 2600000001872

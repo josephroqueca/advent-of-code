@@ -166,7 +166,6 @@ def run_sim(starting_attack):
                     row += 'X'
             print(row, health)
 
-    # print_status()
     while fighting:
         order = sorted(list(beings.keys()), key=lambda x: (x[1], x[0]))
 
@@ -208,7 +207,6 @@ def run_sim(starting_attack):
                             if target['id'][0] == 'E': return False
                             remove(target)
         current_round += 1
-        # print_status()
 
     survivors = elves if elves else goblins
     total_health = sum(survivors[s]['hp'] for s in survivors)
@@ -220,5 +218,5 @@ starting_attack = 4
 while elf_died:
     elf_died = not run_sim(starting_attack)
     if not elf_died:
-        print('The elves need a starting attack of:', starting_attack) 
+        print('The elves need a starting attack of:', starting_attack)
     starting_attack += 1

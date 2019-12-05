@@ -75,6 +75,6 @@ while True:
         ys = [x[0] for x in points.keys()]
         top, height = min(ys), max(ys)
         did_print = should_print
-        should_print = abs(top - height) < 100 
+        should_print = abs(top - height) < 100
         if not should_print and did_print != should_print:
             break

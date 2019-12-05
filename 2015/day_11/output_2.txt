@@ -1,0 +1,1 @@
+Santa needs a new password! Now it's ['v', 'z', 'c', 'a', 'a', 'b', 'c', 'c']

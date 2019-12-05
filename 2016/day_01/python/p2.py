@@ -50,7 +50,6 @@ for instruction in puzzle_input.split('', ')':
     pos = move(pos, direction, 1)
     distance -= 1
     if pos in visited:
-      print('You visited', pos, 'twice!')
       if visited_twice_first is None:
         visited_twice_first = pos
     visited[pos] = True

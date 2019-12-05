@@ -19,7 +19,6 @@ class Program(object):
 
         if len(components) > 2:
             self.heldPrograms = [name if name[-1] != "," else name[0:-1] for name in components[3:]]
-            # print(self.heldPrograms)
 
 programMap = {}
 for line in puzzle_input:
@@ -29,4 +28,4 @@ for line in puzzle_input:
 
 subPrograms = set([program for programName in programMap for program in programMap[programName].heldPrograms])
 baseProgram = [x for x in programMap if x not in subPrograms]
-print(baseProgram)
+print("The bottom program is", baseProgram)

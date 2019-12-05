@@ -1,0 +1,2 @@
+The outcome of the battle is: 68324
+The elves need a starting attack of: 12

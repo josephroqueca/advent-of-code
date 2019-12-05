@@ -204,7 +204,6 @@ while fighting:
                     if target['hp'] <= 0:
                         remove(target)
     current_round += 1
-    # print_status()
 
 survivors = elves if elves else goblins
 total_health = sum(survivors[s]['hp'] for s in survivors)

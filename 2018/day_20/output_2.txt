@@ -1,0 +1,1 @@
+There are 8369 rooms that are at least 1,000 doors away
