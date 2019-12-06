@@ -121,18 +121,11 @@ class AOC:
     ##################################################
 
     def run(self, save):
-        print(str(self.challenge))
-        output_file = os.path.join('.', str(self.challenge.year), 'day_{day}'.format(
-            day=self.challenge.day), 'output_{part}.txt'.format(part=self.challenge.part))
-        if not os.path.exists(output_file):
-            print('Solution does not exist for validation. Skipping...')
-            return
-
         self._validate_state()
         process = self._language.run(self.working_dir, self.challenge)
-        response = process.stdout.decode('utf-8')
+        response = process.stdout.decode('utf-8').strip()
 
-        # print('-----\n{response}-----\n'.format(response=response))
+        print('-----\n{response}-----\n'.format(response=response))
 
         output_file = os.path.join('.', str(self.challenge.year), 'day_{day}'.format(
             day=self.challenge.day), 'output_{part}.txt'.format(part=self.challenge.part))
@@ -145,10 +138,9 @@ class AOC:
             if os.path.exists(output_file):
                 with open(output_file) as solution_file:
                     solution = solution_file.read()
-                    # if solution == response:
-                    #     print('The solution appears correct!')
-                    # else:
-                    if solution != response:
+                    if solution == response:
+                        print('The solution appears correct!')
+                    else:
                         print('Solution does not match one found in {file}'.format(file=output_file))
                         print('\tExpected: {solution}'.format(solution=solution))
                         print('\tReceived: {response}'.format(response=response))
