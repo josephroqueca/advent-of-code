@@ -1,10 +1,4 @@
-use std::env;
-use std::fs;
-use std::path::Path;
-use std::collections::{
-    HashMap,
-    HashSet,
-};
+use std::collections::{HashMap, HashSet};
 
 /* Common
 ================================================= */
@@ -17,7 +11,7 @@ struct Point {
 
 impl Point {
     fn manhattan_distance(&self, other: Point) -> i32 {
-        return (self.x - other.x).abs() + (self.y - other.y).abs()
+        return (self.x - other.x).abs() + (self.y - other.y).abs();
     }
 }
 
@@ -26,7 +20,8 @@ impl Point {
 
 fn explore_wire(input: String) -> HashSet<Point> {
     let mut wire: HashSet<Point> = HashSet::new();
-    input.split(",")
+    input
+        .split(",")
         .fold(Point { x: 0, y: 0 }, |acc, instruction| {
             let distance = instruction[1..].parse::<i32>().unwrap();
             let modifier = match &instruction[0..1] {
@@ -34,11 +29,14 @@ fn explore_wire(input: String) -> HashSet<Point> {
                 "L" => Point { x: -1, y: 0 },
                 "U" => Point { x: 0, y: 1 },
                 "D" => Point { x: 0, y: -1 },
-                _ => unreachable!()
+                _ => unreachable!(),
             };
 
             return (0..distance).fold(acc, |acc, _| {
-                let next = Point { x: acc.x + modifier.x, y: acc.y + modifier.y };
+                let next = Point {
+                    x: acc.x + modifier.x,
+                    y: acc.y + modifier.y,
+                };
                 wire.insert(next);
                 next
             });
@@ -49,16 +47,17 @@ fn explore_wire(input: String) -> HashSet<Point> {
 fn part_one(input: String) {
     let origin = Point { x: 0, y: 0 };
 
-    let wires = input.split_whitespace()
+    let wires = input
+        .split_whitespace()
         .map(|x| explore_wire(x.to_string()))
         .collect::<Vec<_>>();
 
     let primary_intersection = wires[0]
         .intersection(&wires[1])
-        .fold(origin, |closest, next| {
-            match closest {
-                Point { x: 0, y: 0 } => *next,
-                _ => if origin.manhattan_distance(closest) <= origin.manhattan_distance(*next) {
+        .fold(origin, |closest, next| match closest {
+            Point { x: 0, y: 0 } => *next,
+            _ => {
+                if origin.manhattan_distance(closest) <= origin.manhattan_distance(*next) {
                     closest
                 } else {
                     *next
@@ -66,8 +65,10 @@ fn part_one(input: String) {
             }
         });
 
-    println!("The closest intersection is ({}, {})", primary_intersection.x, primary_intersection.y);
-    println!("The manhattan distance is {}", origin.manhattan_distance(primary_intersection));
+    println!(
+        "The manhattan distance is {}",
+        origin.manhattan_distance(primary_intersection)
+    );
 }
 
 /* Part 2
@@ -75,7 +76,8 @@ fn part_one(input: String) {
 
 fn measure_wire(input: String) -> HashMap<Point, i32> {
     let mut wire: HashMap<Point, i32> = HashMap::new();
-    input.split(",")
+    input
+        .split(",")
         .fold((Point { x: 0, y: 0 }, 0), |acc, instruction| {
             let distance = instruction[1..].parse::<i32>().unwrap();
             let modifier = match &instruction[0..1] {
@@ -83,11 +85,14 @@ fn measure_wire(input: String) -> HashMap<Point, i32> {
                 "L" => Point { x: -1, y: 0 },
                 "U" => Point { x: 0, y: 1 },
                 "D" => Point { x: 0, y: -1 },
-                _ => unreachable!()
+                _ => unreachable!(),
             };
 
             return (0..distance).fold(acc, |acc, _| {
-                let next = Point { x: acc.0.x + modifier.x, y: acc.0.y + modifier.y };
+                let next = Point {
+                    x: acc.0.x + modifier.x,
+                    y: acc.0.y + modifier.y,
+                };
                 if wire.contains_key(&next) == false {
                     wire.insert(next, acc.1 + 1);
                 }
@@ -98,46 +103,37 @@ fn measure_wire(input: String) -> HashMap<Point, i32> {
 }
 
 fn part_two(input: String) {
-    let wires = input.split_whitespace()
+    let wires = input
+        .split_whitespace()
         .map(|x| measure_wire(x.to_string()))
         .collect::<Vec<_>>();
 
     let right_wire_points: HashSet<Point> = wires[0].keys().cloned().collect();
     let left_wire_points: HashSet<Point> = wires[1].keys().cloned().collect();
 
-    let min_distance = right_wire_points.intersection(&left_wire_points)
-        .fold(i32::max_value(), |min_dist, &point| {
+    let min_distance = right_wire_points.intersection(&left_wire_points).fold(
+        i32::max_value(),
+        |min_dist, &point| {
             let distance = wires[0].get(&point).unwrap() + wires[1].get(&point).unwrap();
             if distance < min_dist {
                 distance
             } else {
                 min_dist
             }
-        });
+        },
+    );
 
-    println!("The fewest steps to reach an intersection is {}", min_distance);
+    println!(
+        "The fewest steps to reach an intersection is {}",
+        min_distance
+    );
 }
 
 /* Main + Input
 ================================================= */
 
+use aoc_util::{aoc, AOCParams};
+
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let part = &args[1];
-    let input = get_input();
-    match part.as_str() {
-        "1" => part_one(input),
-        "2" => part_two(input),
-        _ => println!("Only parts 1 and 2 exist...")
-    }
-}
-
-fn get_input() -> String {
-    let input_file = Path::new("../input.txt");
-
-    if input_file.exists() {
-        return fs::read_to_string(input_file).unwrap();
-    }
-
-    String::new()
+    aoc(&part_one, &part_two, AOCParams::new(false, None));
 }

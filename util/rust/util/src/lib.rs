@@ -1,14 +1,35 @@
 use std::env;
 use std::fs;
+use std::option::Option;
 use std::path::Path;
 
-pub fn aoc(p1: &dyn Fn(String) -> (), p2: &dyn Fn(String) -> (), testing: bool) {
+pub struct AOCParams {
+    pub testing: bool,
+    pub input: Option<String>,
+}
+
+impl AOCParams {
+    pub fn new(testing: bool, input: Option<String>) -> AOCParams {
+        AOCParams {
+            testing: testing,
+            input: input,
+        }
+    }
+}
+
+pub fn aoc(p1: &dyn Fn(String) -> (), p2: &dyn Fn(String) -> (), params: AOCParams) {
     let args: Vec<String> = env::args().collect();
     let part = &args[1];
-    let input = if testing {
-        get_test_input()
-    } else {
-        get_input()
+
+    let input = match params.input {
+        Some(ref r#override) => r#override.to_string(),
+        None => {
+            if params.testing {
+                get_test_input()
+            } else {
+                get_input()
+            }
+        }
     };
 
     match part.as_str() {

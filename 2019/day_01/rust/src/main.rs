@@ -1,12 +1,9 @@
-use std::env;
-use std::fs;
-use std::path::Path;
-
 /* Part 1
 ================================================= */
 
 fn part_one(input: String) {
-    let total_fuel: i32 = input.split_whitespace()
+    let total_fuel: i32 = input
+        .split_whitespace()
         .map(|x| x.parse::<i32>().unwrap() / 3 - 2)
         .sum();
 
@@ -17,7 +14,8 @@ fn part_one(input: String) {
 ================================================= */
 
 fn part_two(input: String) {
-    let total_fuel: i32 = input.split_whitespace()
+    let total_fuel: i32 = input
+        .split_whitespace()
         .map(|x| fuel_for_module(x.parse::<i32>().unwrap()))
         .sum();
 
@@ -36,23 +34,8 @@ fn fuel_for_module(mass: i32) -> i32 {
 /* Main + Input
 ================================================= */
 
+use aoc_util::{aoc, AOCParams};
+
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let part = &args[1];
-    let input = get_input();
-    match part.as_str() {
-        "1" => part_one(input),
-        "2" => part_two(input),
-        _ => println!("Only parts 1 and 2 exist...")
-    }
-}
-
-fn get_input() -> String {
-    let input_file = Path::new("../input.txt");
-
-    if input_file.exists() {
-        return fs::read_to_string(input_file).unwrap();
-    }
-
-    String::new()
+    aoc(&part_one, &part_two, AOCParams::new(false, None));
 }

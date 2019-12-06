@@ -5,3 +5,5 @@ authors = ["Joseph Roque <contact@josephroque.ca>"]
 edition = "2018"
 
 [dependencies]
+aoc_util = { path = "../../../util/rust/util" }
+aoc_computer = { path = "../../../util/rust/2019_computer" }
