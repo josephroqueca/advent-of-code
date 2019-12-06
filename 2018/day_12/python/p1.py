@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../{}.txt'.format(script_path, 'input')
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../{}.txt'.format(SCRIPT_PATH, 'input')
+
 
 def get_lines():
-    with open(filename) as f:
+    with open(FILENAME) as f:
         return f.readlines()
+
 
 start_state = None
 transformations = {}
@@ -35,7 +37,7 @@ for i in range(20):
 
     next_state = state[:]
     for index, pot in enumerate(state):
-        pot_state = tuple(state[index - 2 : index + 3])
+        pot_state = tuple(state[index - 2: index + 3])
         if pot_state in transformations:
             next_state[index] = transformations[pot_state]
         else:

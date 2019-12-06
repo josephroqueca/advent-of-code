@@ -1,0 +1,18 @@
+[MESSAGES CONTROL]
+# R0801 => duplicate-code
+# R0911 => too-many-return-statements
+# R0912 => too-many-branches
+# R0913 => too-many-arguments
+# R0903 => too-few-public-methods
+# R0914 => too-many-locals
+# R0915 => too-many-statements
+# R0902 => too-many-instance-attributes
+# R1702 => too-many-nested-statements
+# C0114, C0116, C0115 => docstrings
+# C0103 => invalid-name
+# W0603 => globals
+# W0702 => bare-except
+disable=R0801, C0114, C0103, C0116, W0603, R0911, C0115, R0913, R1702, R0912, R0903, R0914, R0915, R0902, W0702
+
+[FORMAT]
+max-line-length=120

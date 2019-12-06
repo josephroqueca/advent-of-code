@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../{}.txt'.format(script_path, 'input')
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../{}.txt'.format(SCRIPT_PATH, 'input')
+
 
 def get_lines():
-    with open(filename) as f:
+    with open(FILENAME) as f:
         return f.readlines()
+
 
 path_ids = set(['|', '-'])
 curve_ids = set(['\\', '/'])
@@ -33,7 +35,7 @@ for line in get_lines():
         elif c in cart_ids:
             cart = (index, y)
             next_cart_id += 1
-            if c == '<' or c == '>':
+            if c in ('<', '>'):
                 paths[cell] = '-'
                 carts[cart] = (-1, 0, next_cart_id) if c == '<' else (1, 0, next_cart_id)
             else:
@@ -101,4 +103,3 @@ while not crash_position:
             carts[cart_next_id] = (cart_velocity[0], cart_velocity[1], cart_id)
 
 print('The location of the first collision is:', crash_position)
-

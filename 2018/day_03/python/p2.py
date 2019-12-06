@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../input.txt'.format(script_path)
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../input.txt'.format(SCRIPT_PATH)
 
 # Read the challenge input
-with open(filename, 'r') as input_file:
-  puzzle_input = input_file.readlines()
+with open(FILENAME, 'r') as input_file:
+    PUZZLE_INPUT = input_file.readlines()
 
 claimed = {}
 
-for line in puzzle_input:
+for line in PUZZLE_INPUT:
     comp = line.split()
 
     left = int(comp[2][:comp[2].index(',')])
-    top = int(comp[2][comp[2].index(',')+1:-1])
+    top = int(comp[2][comp[2].index(',') + 1:-1])
     width = int(comp[3][:comp[3].index('x'):])
-    height = int(comp[3][comp[3].index('x')+1:])
+    height = int(comp[3][comp[3].index('x') + 1:])
 
     for x in range(width):
         for y in range(height):
@@ -26,14 +26,14 @@ for line in puzzle_input:
             else:
                 claimed[spot] = 1
 
-for line in puzzle_input:
+for line in PUZZLE_INPUT:
     comp = line.split()
 
     claim_id = comp[0][1:]
     left = int(comp[2][:comp[2].index(',')])
-    top = int(comp[2][comp[2].index(',')+1:-1])
+    top = int(comp[2][comp[2].index(',') + 1:-1])
     width = int(comp[3][:comp[3].index('x'):])
-    height = int(comp[3][comp[3].index('x')+1:])
+    height = int(comp[3][comp[3].index('x') + 1:])
 
     valid = True
     for x in range(width):

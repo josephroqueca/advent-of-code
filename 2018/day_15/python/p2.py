@@ -3,15 +3,16 @@
 import queue
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../{}.txt'.format(script_path, 'input')
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../{}.txt'.format(SCRIPT_PATH, 'input')
+
 
 def get_lines():
-    with open(filename) as f:
+    with open(FILENAME) as f:
         return f.readlines()
 
-def run_sim(starting_attack):
 
+def run_sim(starting_attack):
     walls = set()
     caverns = set()
     goblins = {}
@@ -33,13 +34,13 @@ def run_sim(starting_attack):
                 caverns.add(cell)
             elif c == 'G':
                 gob_id = 'G{}'.format(total_goblins)
-                goblins[gob_id] = { 'id': gob_id, 'attack': 3, 'hp': 200, 'x': x, 'y': y }
+                goblins[gob_id] = {'id': gob_id, 'attack': 3, 'hp': 200, 'x': x, 'y': y}
                 beings[cell] = gob_id
                 total_goblins += 1
                 caverns.add(cell)
             elif c == 'E':
                 elf_id = 'E{}'.format(total_elves)
-                elves[elf_id] = { 'id': elf_id, 'attack': starting_attack, 'hp': 200, 'x': x, 'y': y }
+                elves[elf_id] = {'id': elf_id, 'attack': starting_attack, 'hp': 200, 'x': x, 'y': y}
                 beings[cell] = elf_id
                 total_elves += 1
                 caverns.add(cell)
@@ -51,10 +52,9 @@ def run_sim(starting_attack):
     def reading_order(c1, c2):
         if c1[1] < c2[1]:
             return c1
-        elif c2[1] < c1[1]:
+        if c2[1] < c1[1]:
             return c2
-        else:
-            return c1 if c1[0] < c2[0] else c2
+        return c1 if c1[0] < c2[0] else c2
 
     def neighbors(n):
         ns = []
@@ -79,7 +79,7 @@ def run_sim(starting_attack):
     def bfs(cell, targets):
         targets = set(targets)
         q = queue.PriorityQueue()
-        dist = { cell: 0 }
+        dist = {cell: 0}
         prev = {}
 
         q.put((0, 0, 0, cell))
@@ -98,14 +98,16 @@ def run_sim(starting_attack):
             n = q.get()[3]
 
             for ne in neighbors(n):
-                if ne in prev: continue
+                if ne in prev:
+                    continue
 
                 if ne in caverns and ne not in beings:
                     alt = dist[n] + 1
                     if ne not in dist or alt < dist[ne]:
                         dist[ne] = alt
                         prev[ne] = n
-                        if ne in targets: return build_path(ne)[1]
+                        if ne in targets:
+                            return build_path(ne)[1]
                         q.put((alt, ne[1], ne[0], ne))
         return None
 
@@ -147,25 +149,6 @@ def run_sim(starting_attack):
     fighting = True
     current_round = 0
 
-    def print_status():
-        print(current_round)
-        for y in range(max_height):
-            row = ""
-            health = ""
-            for x in range(max_width):
-                cell = (x, y)
-                if cell in beings:
-                    being = elves[beings[cell]] if beings[cell][0] == 'E' else goblins[beings[cell]]
-                    row += beings[cell][0]
-                    health += ' {}({})'.format(beings[cell], being['hp'])
-                elif cell in caverns:
-                    row += '.'
-                elif cell in walls:
-                    row += '#'
-                else:
-                    row += 'X'
-            print(row, health)
-
     while fighting:
         order = sorted(list(beings.keys()), key=lambda x: (x[1], x[0]))
 
@@ -180,11 +163,13 @@ def run_sim(starting_attack):
                 break
             being = elves[being_id] if being_type == 'E' else goblins[being_id]
 
+            # pylint: disable=unsupported-assignment-operation, unsubscriptable-object
             target = get_target(being_position, being_type)
-            if target:
+            if target is not None:
                 target['hp'] -= being['attack']
                 if target['hp'] <= 0:
-                    if target['id'][0] == 'E': return False
+                    if target['id'][0] == 'E':
+                        return False
                     remove(target)
             else:
                 open_spaces = get_target_spaces(elves if being_type == 'G' else goblins)
@@ -204,7 +189,8 @@ def run_sim(starting_attack):
                     if target:
                         target['hp'] -= being['attack']
                         if target['hp'] <= 0:
-                            if target['id'][0] == 'E': return False
+                            if target['id'][0] == 'E':
+                                return False
                             remove(target)
         current_round += 1
 
@@ -213,10 +199,11 @@ def run_sim(starting_attack):
     print('The outcome of the battle is:', (current_round - 1) * total_health)
     return True
 
+
 elf_died = True
-starting_attack = 4
+attack = 4
 while elf_died:
-    elf_died = not run_sim(starting_attack)
+    elf_died = not run_sim(attack)
     if not elf_died:
-        print('The elves need a starting attack of:', starting_attack)
-    starting_attack += 1
+        print('The elves need a starting attack of:', attack)
+    attack += 1

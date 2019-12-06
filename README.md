@@ -20,7 +20,7 @@ If a problem hasn't been solved with your language of choice, then the script wi
 | 1   |   ✅   |         |      |  ✅  |
 | 2   |        |         |      |  ✅  |
 | 3   |        |         |      |  ✅  |
-| 4   |        |         |      |      |
+| 4   |        |         |      |  ✅  |
 | 5   |        |         |      |      |
 | 6   |        |         |      |      |
 | 7   |        |         |      |      |

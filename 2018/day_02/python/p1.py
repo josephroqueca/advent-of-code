@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../input.txt'.format(script_path)
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../input.txt'.format(SCRIPT_PATH)
 
 # Read the challenge input
-with open(filename, 'r') as input_file:
-  lines_input = input_file.readlines()
+with open(FILENAME, 'r') as input_file:
+    lines_input = input_file.readlines()
 
-ids_with_pairs =set()
+ids_with_pairs = set()
 ids_with_triplets = set()
 
 for box_id in lines_input:

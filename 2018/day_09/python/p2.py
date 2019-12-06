@@ -4,32 +4,38 @@ import re
 from collections import defaultdict
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../input.txt'.format(script_path)
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../input.txt'.format(SCRIPT_PATH)
 
-def get_lines(name=filename):
+
+def get_lines(name=FILENAME):
     with open(name) as input_file:
         return input_file.readlines()
+
 
 def get_nums_by_line():
     return [[int(match) for match in re.findall(r'-?\d+', line)] for line in get_lines()]
 
-class Marble(object):
+
+class Marble:
     def __init__(self, value):
         self.value = value
         self.clockwise = None
         self.counterclockwise = None
+
     def __repr__(self):
         return "{}, ({}, {})".format(self.value, self.clockwise.value, self.counterclockwise.value)
 
+
 def remove_marble(marble):
-    removed_marble = marble
-    for i in range(7):
-        removed_marble = removed_marble.counterclockwise
-    counterclockwise = removed_marble.counterclockwise
-    removed_marble.clockwise.counterclockwise = counterclockwise
-    counterclockwise.clockwise = removed_marble.clockwise
-    return removed_marble, removed_marble.clockwise
+    removed = marble
+    for _ in range(7):
+        removed = removed.counterclockwise
+    counterclockwise = removed.counterclockwise
+    removed.clockwise.counterclockwise = counterclockwise
+    counterclockwise.clockwise = removed.clockwise
+    return removed, removed.clockwise
+
 
 players, last_marble_points = get_nums_by_line()[0]
 last_marble_points = last_marble_points * 100

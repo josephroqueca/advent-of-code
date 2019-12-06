@@ -3,21 +3,26 @@
 import re
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../input.txt'.format(script_path)
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../input.txt'.format(SCRIPT_PATH)
 
-def get_lines(name=filename):
+
+def get_lines(name=FILENAME):
     with open(name) as input_file:
         return input_file.readlines()
 
+
 lines = get_lines()
 
-class Step(object):
+
+class Step:
     def __init__(self, children, parents):
         self.children = children
         self.parents = parents
+
     def __repr__(self):
         return str(self.children) + " -- " + str(self.parents)
+
 
 steps = {}
 
@@ -55,4 +60,3 @@ while len(order) < total_steps:
             step.parents.remove(first_available)
 
 print('The jobs are completed in the following order:', order)
-

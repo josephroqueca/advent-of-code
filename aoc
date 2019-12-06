@@ -4,362 +4,385 @@ from argparse import ArgumentParser
 from enum import Enum
 from shutil import copy
 from datetime import datetime
-import re
 import os
-import requests
 import sys
 import subprocess
 import webbrowser
+import requests
 
 cache_file = '.aoc_cache'
 
 # Params
 ##################################################
 
-class Challenge(object):
-  def __init__(self, year=None, day=None, part=None):
-    now = datetime.now()
-    self.year = year if year else now.year
-    self.day = day if day else now.day
-    self.part = part if part else 1
 
-    if int(self.day) < 10:
-        self.day = '0{day}'.format(day=int(self.day))
+class Challenge:
+    def __init__(self, year=None, day=None, part=None):
+        now = datetime.now()
+        self.year = year if year else now.year
+        self.day = day if day else now.day
+        self.part = part if part else 1
 
-  def _validate_state(self):
-    if not self.year:
-      raise ValueError('Year is not available')
-    if not self.day:
-      raise ValueError('Day is not available')
-    if not self.part:
-      raise ValueError('Part is not available')
+        if int(self.day) < 10:
+            self.day = '0{day}'.format(day=int(self.day))
+
+    def validate_state(self):
+        if not self.year:
+            raise ValueError('Year is not available')
+        if not self.day:
+            raise ValueError('Day is not available')
+        if not self.part:
+            raise ValueError('Part is not available')
+
+    def __str__(self):
+        return "{year}, {day}, {part}".format(year=self.year, day=self.day, part=self.part)
 
 # AoC
 ##################################################
 
-class AOC(object):
-  def __init__(self):
-    self._session = None
-    self._language = None
-    self.challenge = Challenge()
-    if os.path.exists(cache_file):
-      with open(cache_file) as cache:
-        lines = cache.readlines()
-        self._language = SupportedLanguage.parse(lines[0][lines[0].index('=') + 1:].strip())
-        self._session = lines[4][lines[4].index('=') + 1:].strip()
 
-        year = lines[1][lines[1].index('=') + 1:].strip()
-        day = lines[2][lines[2].index('=') + 1:].strip()
-        part = lines[3][lines[3].index('=') + 1:].strip()
-        self.challenge = Challenge(year, day, part)
+class AOC:
+    def __init__(self):
+        self._session = None
+        self._language = None
+        self.challenge = Challenge()
+        if os.path.exists(cache_file):
+            with open(cache_file) as cache:
+                lines = cache.readlines()
+                self._language = SupportedLanguage.parse(lines[0][lines[0].index('=') + 1:].strip())
+                self._session = lines[4][lines[4].index('=') + 1:].strip()
 
-    if self.is_valid_state():
-      self.working_dir = os.path.join(
-        str(self.challenge.year),
-        'day_{day}'.format(day=self.challenge.day),
-        self._language.id()
-      )
-    else:
-      self.working_dir = None
+                year = lines[1][lines[1].index('=') + 1:].strip()
+                day = lines[2][lines[2].index('=') + 1:].strip()
+                part = lines[3][lines[3].index('=') + 1:].strip()
+                self.challenge = Challenge(year, day, part)
 
-  # Create
-  ##################################################
+        if self.is_valid_state():
+            self.working_dir = os.path.join(
+                str(self.challenge.year),
+                'day_{day}'.format(day=self.challenge.day),
+                self._language.id()
+            )
+        else:
+            self.working_dir = None
 
-  def create(self):
-    self._validate_state()
+    # Create
+    ##################################################
 
-    if os.path.exists(self.working_dir):
-      return
+    def create(self):
+        self._validate_state()
 
-    starter_file = os.path.join(
-      '.',
-      'util',
-      self._language.id(),
-      'starter.{extension}'.format(extension=self._language.extension())
-    )
-    supporting_dir = os.path.join('.', 'util', self._language.id(), 'supporting_files')
+        if os.path.exists(self.working_dir):
+            return
 
-    os.makedirs(os.path.join(self.working_dir, self._language.src_prefix()), exist_ok=True)
+        starter_file = os.path.join(
+            '.',
+            'util',
+            self._language.id(),
+            'starter.{extension}'.format(extension=self._language.extension())
+        )
+        supporting_dir = os.path.join('.', 'util', self._language.id(), 'supporting_files')
 
-    if os.path.exists(starter_file):
-      for dest in ['p1', 'p2']:
-        copy(starter_file, os.path.join(
-          self.working_dir,
-          self._language.src_prefix(),
-          '{dest}.{extension}'.format(dest=dest, extension=self._language.extension())
-        ))
+        os.makedirs(os.path.join(self.working_dir, self._language.src_prefix()), exist_ok=True)
 
-    if os.path.exists(supporting_dir):
-      copy_directory(supporting_dir, self.working_dir)
+        if os.path.exists(starter_file):
+            for dest in ['p1', 'p2']:
+                copy(starter_file, os.path.join(
+                    self.working_dir,
+                    self._language.src_prefix(),
+                    '{dest}.{extension}'.format(dest=dest, extension=self._language.extension())
+                ))
 
-  # Fetch
-  ##################################################
+        if os.path.exists(supporting_dir):
+            copy_directory(supporting_dir, self.working_dir)
 
-  def fetch(self):
-    self._validate_state(with_session=True)
+    # Fetch
+    ##################################################
 
-    input_file = os.path.join('.', str(self.challenge.year), 'day_{day}'.format(day=self.challenge.day), 'input.txt')
-    if os.path.exists(input_file):
-      return
+    def fetch(self):
+        self._validate_state(with_session=True)
 
-    cookies = { 'session': self._session }
-    r = requests.get(
-      'https://adventofcode.com/{year}/day/{day}/input'.format(year=self.challenge.year, day=int(self.challenge.day)),
-      cookies=cookies
-    )
+        input_file = os.path.join('.', str(self.challenge.year),
+                                  'day_{day}'.format(day=self.challenge.day), 'input.txt')
+        if os.path.exists(input_file):
+            return
 
-    with open(input_file, 'w') as f:
-      f.write(r.text)
+        cookies = {'session': self._session}
+        r = requests.get(
+            'https://adventofcode.com/{year}/day/{day}/input'.format(
+                year=self.challenge.year, day=int(self.challenge.day)),
+            cookies=cookies
+        )
 
-  # Run
-  ##################################################
+        with open(input_file, 'w') as f:
+            f.write(r.text)
 
-  def run(self, save):
-    self._validate_state()
-    process = self._language.run(self.working_dir, self.challenge)
-    response = process.stdout.decode('utf-8')
+    # Run
+    ##################################################
 
-    print('-----\n{response}-----\n'.format(response=response))
+    def run(self, save):
+        print(str(self.challenge))
+        output_file = os.path.join('.', str(self.challenge.year), 'day_{day}'.format(
+            day=self.challenge.day), 'output_{part}.txt'.format(part=self.challenge.part))
+        if not os.path.exists(output_file):
+            print('Solution does not exist for validation. Skipping...')
+            return
 
-    output_file = os.path.join('.', str(self.challenge.year), 'day_{day}'.format(day=self.challenge.day), 'output_{part}.txt'.format(part=self.challenge.part))
+        self._validate_state()
+        process = self._language.run(self.working_dir, self.challenge)
+        response = process.stdout.decode('utf-8')
 
-    if response and save:
-      print('Saving output: {response}'.format(response=response))
-      with open(output_file, 'w') as solution_file:
-        solution_file.write(response)
-    else:
-      if os.path.exists(output_file):
-        with open(output_file) as solution_file:
-          solution = solution_file.read()
-          if solution == response:
-            print('The solution appears correct!')
-          else:
-            print('Solution does not match one found in {file}'.format(file=output_file))
-            print('\tExpected: {solution}'.format(solution=solution))
-            print('\tReceived: {response}'.format(response=response))
-      else:
-        print('Solution does not exist for validation. Skipping...')
+        # print('-----\n{response}-----\n'.format(response=response))
 
-  # Open
-  ##################################################
+        output_file = os.path.join('.', str(self.challenge.year), 'day_{day}'.format(
+            day=self.challenge.day), 'output_{part}.txt'.format(part=self.challenge.part))
 
-  def open(self):
-    self._validate_state()
-    url = 'https://adventofcode.com/{year}/day/{day}'.format(year=self.challenge.year, day=int(self.challenge.day))
-    webbrowser.open(url, new=2)
+        if response and save:
+            print('Saving output: {response}'.format(response=response))
+            with open(output_file, 'w') as solution_file:
+                solution_file.write(response)
+        else:
+            if os.path.exists(output_file):
+                with open(output_file) as solution_file:
+                    solution = solution_file.read()
+                    # if solution == response:
+                    #     print('The solution appears correct!')
+                    # else:
+                    if solution != response:
+                        print('Solution does not match one found in {file}'.format(file=output_file))
+                        print('\tExpected: {solution}'.format(solution=solution))
+                        print('\tReceived: {response}'.format(response=response))
+            else:
+                print('Solution does not exist for validation. Skipping...')
 
-  def __str__(self):
-    return 'language={language}\nyear={year}\nday={day}\npart={part}\nsession={session}'.format(
-      language=self._language.id(),
-      year=self.challenge.year,
-      day=self.challenge.day,
-      part=self.challenge.part,
-      session=self._session
-    )
+    # Open
+    ##################################################
 
-  def set_env(self, session, language, year, day, part):
-    if session:
-      self._session = session
-    supported_language = SupportedLanguage.parse(language)
-    if supported_language:
-      self._language = supported_language
+    def open(self):
+        self._validate_state()
+        url = 'https://adventofcode.com/{year}/day/{day}'.format(year=self.challenge.year, day=int(self.challenge.day))
+        webbrowser.open(url, new=2)
 
-    if year:
-      self.challenge.year = year
-    if day:
-      self.challenge.day = day
-      if int(self.challenge.day) < 10:
-        self.challenge.day = '0{day}'.format(day=int(self.challenge.day))
-    if part:
-      self.challenge.part = part
+    def __str__(self):
+        return 'language={language}\nyear={year}\nday={day}\npart={part}\nsession={session}'.format(
+            language=self._language.id(),
+            year=self.challenge.year,
+            day=self.challenge.day,
+            part=self.challenge.part,
+            session=self._session
+        )
 
-    if self.is_valid_state():
-      self.working_dir = os.path.join(
-        str(self.challenge.year),
-        'day_{day}'.format(day=self.challenge.day),
-        self._language.id()
-      )
-    else:
-      self.working_dir = None
+    def set_env(self, session, language, year, day, part):
+        if session:
+            self._session = session
+        supported_language = SupportedLanguage.parse(language)
+        if supported_language:
+            self._language = supported_language
 
-  def cache_env(self):
-    try:
-      self._validate_state()
-      with open(cache_file, 'w') as cache:
-        cache.write(str(self))
-    except:
-      pass
+        if year:
+            self.challenge.year = year
+        if day:
+            self.challenge.day = day
+            if int(self.challenge.day) < 10:
+                self.challenge.day = '0{day}'.format(day=int(self.challenge.day))
+        if part:
+            self.challenge.part = part
 
-  def is_valid_state(self, with_session=False):
-    try:
-      self._validate_state(with_session=with_session)
-      return True
-    except:
-      return False
+        if self.is_valid_state():
+            self.working_dir = os.path.join(
+                str(self.challenge.year),
+                'day_{day}'.format(day=self.challenge.day),
+                self._language.id()
+            )
+        else:
+            self.working_dir = None
 
-  def _validate_state(self, with_session=False):
-    if with_session and not self._session:
-      raise ValueError('Session is not available')
-    if not self._language:
-      raise ValueError('Language is not available')
-    if not self.challenge:
-      raise ValueError('Year/Day/Part is not available')
-    self.challenge._validate_state()
+    def cache_env(self):
+        try:
+            self._validate_state()
+            with open(cache_file, 'w') as cache:
+                cache.write(str(self))
+        except:
+            pass
+
+    def is_valid_state(self, with_session=False):
+        try:
+            self._validate_state(with_session=with_session)
+            return True
+        except:
+            return False
+
+    def _validate_state(self, with_session=False):
+        if with_session and not self._session:
+            raise ValueError('Session is not available')
+        if not self._language:
+            raise ValueError('Language is not available')
+        if not self.challenge:
+            raise ValueError('Year/Day/Part is not available')
+        self.challenge.validate_state()
 
 # Main
 ##################################################
 
+
 def main(args=None):
-  if args is None:
-    args = sys.argv[1:]
+    if args is None:
+        args = sys.argv[1:]
 
-  parser = ArgumentParser(description='Advent of Code')
+    parser = ArgumentParser(description='Advent of Code')
 
-  parser.add_argument(
-    '--create',
-    action='store_true',
-    help='Create the files and directories for the language/year/day'
-  )
+    parser.add_argument(
+        '--create',
+        action='store_true',
+        help='Create the files and directories for the language/year/day'
+    )
 
-  parser.add_argument(
-    '--fetch',
-    action='store_true',
-    help='Fetch the input for the year/day'
-  )
+    parser.add_argument(
+        '--fetch',
+        action='store_true',
+        help='Fetch the input for the year/day'
+    )
 
-  parser.add_argument(
-    '--run',
-    action='store_true',
-    help='Run the program for the language/year/day/part'
-  )
+    parser.add_argument(
+        '--run',
+        action='store_true',
+        help='Run the program for the language/year/day/part'
+    )
 
-  parser.add_argument(
-    '--save',
-    action='store_true',
-    help='Save the output'
-  )
+    parser.add_argument(
+        '--save',
+        action='store_true',
+        help='Save the output'
+    )
 
-  parser.add_argument(
-    '--open',
-    action='store_true',
-    help='Open the challenge in the browser'
-  )
+    parser.add_argument(
+        '--open',
+        action='store_true',
+        help='Open the challenge in the browser'
+    )
 
-  parser.add_argument('--session', help='Set your session. Cached for future runs')
-  parser.add_argument('--language', help='Set the current language. Cached for future runs')
-  parser.add_argument('--year', help='Sets the current year. Cached for future runs')
-  parser.add_argument('--day', help='Sets the current day. Cached for future runs')
-  parser.add_argument('--part', help='Sets the current part. Cached for future runs')
-  parsed = parser.parse_args()
+    parser.add_argument('--session', help='Set your session. Cached for future runs')
+    parser.add_argument('--language', help='Set the current language. Cached for future runs')
+    parser.add_argument('--year', help='Sets the current year. Cached for future runs')
+    parser.add_argument('--day', help='Sets the current day. Cached for future runs')
+    parser.add_argument('--part', help='Sets the current part. Cached for future runs')
+    parsed = parser.parse_args()
 
-  aoc = AOC()
-  aoc.set_env(parsed.session, parsed.language, parsed.year, parsed.day, parsed.part)
+    aoc = AOC()
+    aoc.set_env(parsed.session, parsed.language, parsed.year, parsed.day, parsed.part)
 
-  aoc.create()
-  if parsed.fetch:
-    aoc.fetch()
-  elif parsed.run:
-    aoc.run(parsed.save)
+    aoc.create()
+    if parsed.fetch:
+        aoc.fetch()
+    elif parsed.run:
+        aoc.run(parsed.save)
 
-  if parsed.open:
-    aoc.open()
+    if parsed.open:
+        aoc.open()
 
-  aoc.cache_env()
+    aoc.cache_env()
 
 # SupportedLanguage
 ##################################################
 
+# pylint: disable=unsubscriptable-object, no-self-use, subprocess-run-check
+
+
 class SupportedLanguage(Enum):
-  HASKELL = ("haskell", "hs", "", "hsx")
-  PYTHON = ("python", "py", "", "")
-  RUBY = ("ruby", "rb", "", "")
-  RUST = ("rust", "rs", "src", "")
+    HASKELL = ("haskell", "hs", "", "hsx")
+    PYTHON = ("python", "py", "", "")
+    RUBY = ("ruby", "rb", "", "")
+    RUST = ("rust", "rs", "src", "")
 
-  @classmethod
-  def parse(cls, language):
-    for lang in list(cls):
-      if language == lang.id():
-        return lang
-    return None
+    @classmethod
+    def parse(cls, language):
+        for lang in list(cls):
+            if language == lang.id():
+                return lang
+        return None
 
-  def id(self):
-    return self.value[0]
+    def id(self):
+        return self.value[0]
 
-  def extension(self):
-    return self.value[1]
+    def extension(self):
+        return self.value[1]
 
-  def src_prefix(self):
-    return self.value[2]
+    def src_prefix(self):
+        return self.value[2]
 
-  def compile_extension(self):
-    return self.value[3]
+    def compile_extension(self):
+        return self.value[3]
 
-  def _source_file(self, challenge):
-    return os.path.join(
-      str(challenge.year),
-      'day_{day}'.format(day=challenge.day),
-      self.id(),
-      'p{part}.{extension}'.format(part=challenge.part, extension=self.extension())
-    )
+    def _source_file(self, challenge):
+        return os.path.join(
+            str(challenge.year),
+            'day_{day}'.format(day=challenge.day),
+            self.id(),
+            'p{part}.{extension}'.format(part=challenge.part, extension=self.extension())
+        )
 
-  def _compile_file(self, challenge):
-    return os.path.join(
-      str(challenge.year),
-      'day_{day}'.format(day=challenge.day),
-      self.id(),
-      'p{part}.{extension}'.format(part=challenge.part, extension=self.compile_extension())
-    )
+    def _compile_file(self, challenge):
+        return os.path.join(
+            str(challenge.year),
+            'day_{day}'.format(day=challenge.day),
+            self.id(),
+            'p{part}.{extension}'.format(part=challenge.part, extension=self.compile_extension())
+        )
 
-  def _compile(self, challenge, command):
-    subprocess.run(command + [
-      self._source_file(challenge),
-      '-o',
-      self._compile_file(challenge),
-    ])
+    def _compile(self, challenge, command):
+        subprocess.run(command + [
+            self._source_file(challenge),
+            '-o',
+            self._compile_file(challenge),
+        ])
 
-  def _execute(self, command, file):
-    return subprocess.run(command + [file], capture_output=True)
+    def _execute(self, command, file):
+        return subprocess.run(command + [file], capture_output=True)
 
-  def run(self, directory, challenge):
-    if self in [SupportedLanguage.PYTHON, SupportedLanguage.RUBY]:
-      return self._execute([self.id()], self._source_file(challenge))
-    elif self == SupportedLanguage.HASKELL:
-      self._compile(challenge, [
-        'stack',
-        'ghc',
-        '--',
-      ])
-      return self._execute([], self._compile_file(challenge))
-    elif self == SupportedLanguage.RUST:
-      with cd(directory):
-        return self._execute(['cargo', 'run'], challenge.part)
-    return None
+    def run(self, directory, challenge):
+        if self in [SupportedLanguage.PYTHON, SupportedLanguage.RUBY]:
+            return self._execute([self.id()], self._source_file(challenge))
+        if self == SupportedLanguage.HASKELL:
+            self._compile(challenge, [
+                'stack',
+                'ghc',
+                '--',
+            ])
+            return self._execute([], self._compile_file(challenge))
+        if self == SupportedLanguage.RUST:
+            with cd(directory):
+                return self._execute(['cargo', 'run'], challenge.part)
+        return None
 
 # Change Directory
 ##################################################
 
+
 class cd:
-  def __init__(self, newPath):
-    self.newPath = os.path.expanduser(newPath)
+    def __init__(self, new_path):
+        self.new_path = os.path.expanduser(new_path)
+        self.saved_path = None
 
-  def __enter__(self):
-    self.savedPath = os.getcwd()
-    os.chdir(self.newPath)
+    def __enter__(self):
+        self.saved_path = os.getcwd()
+        os.chdir(self.new_path)
 
-  def __exit__(self, etype, value, traceback):
-    os.chdir(self.savedPath)
+    def __exit__(self, etype, value, traceback):
+        os.chdir(self.saved_path)
+
 
 def copy_directory(src, dest):
-  for src_dir, dirs, files in os.walk(src):
-    dst_dir = src_dir.replace(src, dest, 1)
-    if not os.path.exists(dst_dir):
-      os.makedirs(dst_dir)
-    for f in files:
-      src_file = os.path.join(src_dir, f)
-      dst_file = os.path.join(dst_dir, f)
-      if os.path.exists(dst_file):
-        os.remove(dst_file)
-      copy(src_file, dst_dir)
+    for src_dir, _, files in os.walk(src):
+        dst_dir = src_dir.replace(src, dest, 1)
+        if not os.path.exists(dst_dir):
+            os.makedirs(dst_dir)
+        for f in files:
+            src_file = os.path.join(src_dir, f)
+            dst_file = os.path.join(dst_dir, f)
+            if os.path.exists(dst_file):
+                os.remove(dst_file)
+            copy(src_file, dst_dir)
+
 
 if __name__ == "__main__":
-  main()
+    main()

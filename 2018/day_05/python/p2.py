@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../input.txt'.format(script_path)
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../input.txt'.format(SCRIPT_PATH)
 
-def get_file(name=filename):
+
+def get_file(name=FILENAME):
     with open(name) as input_file:
         return input_file.read()
+
 
 def next_index(after, removed):
     n = after + 1
@@ -14,13 +16,15 @@ def next_index(after, removed):
         n += 1
     return n
 
+
 def prev_index(before, removed):
-    p = before - 1
-    while p in removed:
-        p -= 1
-    if p < 0:
-        p = next_index(p, removed)
-    return p
+    prev = before - 1
+    while prev in removed:
+        prev -= 1
+    if prev < 0:
+        prev = next_index(prev, removed)
+    return prev
+
 
 original_puzzle = get_file()
 
@@ -36,7 +40,7 @@ for unit in available_units:
 
     unit_upper = unit.upper()
     for index, p in enumerate(puzzle):
-        if p == unit or p == unit_upper:
+        if p in (unit, unit_upper):
             removed_elements.add(index)
 
     cur_index = next_index(-1, removed_elements)
@@ -45,7 +49,7 @@ for unit in available_units:
         compare_index = next_index(cur_index, removed_elements)
         if compare_index >= len(puzzle):
             break
-        
+
         if lower_puzzle[cur_index] == lower_puzzle[compare_index] and puzzle[cur_index] != puzzle[compare_index]:
             removed_elements.add(cur_index)
             removed_elements.add(compare_index)

@@ -3,18 +3,22 @@
 import re
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../input.txt'.format(script_path)
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../input.txt'.format(SCRIPT_PATH)
 
-def get_lines(name=filename):
+
+def get_lines(name=FILENAME):
     with open(name) as input_file:
         return input_file.readlines()
+
 
 def get_nums_by_line():
     return [tuple([int(match) for match in re.findall(r'-?\d+', line)]) for line in get_lines()]
 
+
 def manhattan(coord, coord2):
     return abs(coord[0] - coord2[0]) + abs(coord[1] - coord2[1])
+
 
 coords = get_nums_by_line()
 
@@ -30,17 +34,19 @@ for region_center in region_sizes:
     if x == left or x == width or y == top or y == height:
         region_sizes[region_center] = -1
 
+
 def find_closest(coord):
     min_dist = max(width, height)
-    closest = None
-    for region_center in region_sizes:
-        dist = manhattan(coord, region_center)
+    current_closest = None
+    for center in region_sizes:
+        dist = manhattan(coord, center)
         if dist < min_dist:
-            closest = region_center
+            current_closest = center
             min_dist = dist
         elif dist == min_dist:
-            closest = None
-    return closest
+            current_closest = None
+    return current_closest
+
 
 for x in range(left, width + 1):
     for y in range(top, height + 1):

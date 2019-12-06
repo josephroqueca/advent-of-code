@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../input.txt'.format(script_path)
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../input.txt'.format(SCRIPT_PATH)
 
 # Read the challenge input
-with open(filename, 'r') as input_file:
-  puzzle_input = input_file.readlines()
+with open(FILENAME, 'r') as input_file:
+    PUZZLE_INPUT = input_file.readlines()
 
 freq = 0
-for line in puzzle_input:
+for line in PUZZLE_INPUT:
     freq += int(line)
 
 print("The resulting frequency is", freq)

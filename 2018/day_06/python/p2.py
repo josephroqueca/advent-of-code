@@ -3,18 +3,22 @@
 import re
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../input.txt'.format(script_path)
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../input.txt'.format(SCRIPT_PATH)
 
-def get_lines(name=filename):
+
+def get_lines(name=FILENAME):
     with open(name) as input_file:
         return input_file.readlines()
+
 
 def get_nums_by_line():
     return [tuple([int(match) for match in re.findall(r'-?\d+', line)]) for line in get_lines()]
 
+
 def manhattan(coord, coord2):
     return abs(coord[0] - coord2[0]) + abs(coord[1] - coord2[1])
+
 
 coords = get_nums_by_line()
 
@@ -28,11 +32,13 @@ valid_region_size = 0
 
 max_valid_dist = 10000
 
+
 def coord_is_valid(coord):
     total = 0
     for other_coord in coords:
         total += manhattan(coord, other_coord)
     return total < max_valid_dist
+
 
 for x in range(0, width + 1):
     for y in range(0, height + 1):

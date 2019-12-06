@@ -3,17 +3,21 @@
 import re
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../input.txt'.format(script_path)
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../input.txt'.format(SCRIPT_PATH)
 
-def get_lines(name=filename):
+
+def get_lines(name=FILENAME):
     with open(name) as input_file:
         return input_file.readlines()
+
 
 def get_nums_by_line():
     return [[int(match) for match in re.findall(r'-?\d+', line)] for line in get_lines()]
 
-puzzle_input = get_nums_by_line()[0]
+
+PUZZLE_INPUT = get_nums_by_line()[0]
+
 
 def build_node(raw_node):
     header = {
@@ -23,7 +27,7 @@ def build_node(raw_node):
 
     node_length = 2
     children = []
-    for i in range(header['children']):
+    for _ in range(header['children']):
         child = build_node(raw_node[node_length:-header['metadata']])
         node_length += child['length']
         children.append(child)
@@ -38,13 +42,16 @@ def build_node(raw_node):
         'metadata': metadata,
     }
 
-root_node = build_node(puzzle_input)
+
+root_node = build_node(PUZZLE_INPUT)
+
 
 def sum_metadata(node):
     total = sum(node['metadata'])
     for child in node['children']:
         total += sum_metadata(child)
     return total
+
 
 sum_of_metadata = sum_metadata(root_node)
 print('The sum of all the node metadata is:', sum_of_metadata)

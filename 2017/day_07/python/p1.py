@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../input.txt'.format(script_path)
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../input.txt'.format(SCRIPT_PATH)
 
 # Read the challenge input
-with open(filename, 'r') as input_file:
-  puzzle_input = input_file.readlines()
+with open(FILENAME, 'r') as input_file:
+    PUZZLE_INPUT = input_file.readlines()
 
-import re
 
-class Program(object):
+class Program:
     def __init__(self, params):
         components = params.split()
         self.name = components[0]
@@ -20,12 +19,14 @@ class Program(object):
         if len(components) > 2:
             self.heldPrograms = [name if name[-1] != "," else name[0:-1] for name in components[3:]]
 
+
 programMap = {}
-for line in puzzle_input:
-    if not line: continue
+for line in PUZZLE_INPUT:
+    if not line:
+        continue
     program = Program(line)
     programMap[program.name] = program
 
-subPrograms = set([program for programName in programMap for program in programMap[programName].heldPrograms])
+subPrograms = {program for programName in programMap for program in programMap[programName].heldPrograms}
 baseProgram = [x for x in programMap if x not in subPrograms]
 print("The bottom program is", baseProgram)

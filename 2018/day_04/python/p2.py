@@ -3,33 +3,35 @@
 import re
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../input.txt'.format(script_path)
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../input.txt'.format(SCRIPT_PATH)
 
-def get_lines(name=filename):
+
+def get_lines(name=FILENAME):
     with open(name, 'r') as input_file:
         return input_file.readlines()
+
 
 events = []
 for line in get_lines():
     vals = [int(match) for match in re.findall(r'\d+', line)]
     if len(vals) == 5:
         year, month, day, hour, minute = vals
-        id = -1
+        gid = -1
     else:
-        year, month, day, hour, minute, id = vals
+        year, month, day, hour, minute, gid = vals
     text = line
 
-    events.append((year, month, day, hour, minute, id, text))
+    events.append((year, month, day, hour, minute, gid, text))
 
 guards = {}
 current_guard = 0
 sleeping_starts = 0
 events = sorted(events)
 for event in events:
-    year, month, day, hour, minute, id, text = event
-    if id != -1:
-        current_guard = id
+    year, month, day, hour, minute, gid, text = event
+    if gid != -1:
+        current_guard = gid
 
     if 'asleep' in text:
         sleeping_starts = minute
@@ -43,9 +45,9 @@ minutes = {}
 current_guard = -1
 sleeping_starts = 0
 for event in events:
-    year, month, day, hour, minute, id, text = event
-    if id != -1:
-        current_guard = id
+    year, month, day, hour, minute, gid, text = event
+    if gid != -1:
+        current_guard = gid
 
     if 'asleep' in text:
         sleeping_starts = minute
