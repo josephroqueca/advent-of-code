@@ -1,0 +1,7 @@
+[package]
+name = "aoc_util"
+version = "0.1.0"
+authors = ["Joseph Roque <contact@josephroque.ca>"]
+edition = "2018"
+
+[dependencies]

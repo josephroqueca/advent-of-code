@@ -129,6 +129,13 @@ class AOC:
             return
 
         response = process.stdout.decode('utf-8').strip()
+        error = process.stderr.decode('utf-8').strip()
+
+        if error:
+            print(error)
+
+        if process.returncode != 0:
+            return
 
         print('-----\n{response}\n-----\n'.format(response=response))
 
