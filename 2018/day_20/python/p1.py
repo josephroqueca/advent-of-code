@@ -3,12 +3,14 @@
 from enum import Enum
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../{}.txt'.format(script_path, 'input')
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../{}.txt'.format(SCRIPT_PATH, 'input')
+
 
 def get_file():
-    with open(filename) as f:
+    with open(FILENAME) as f:
         return f.read()
+
 
 class Direction(Enum):
     NORTH = (0, 1)
@@ -17,18 +19,23 @@ class Direction(Enum):
     WEST = (-1, 0)
 
     @classmethod
-    def parse(cls, str):
-        if str == 'N': return cls.NORTH
-        elif str == 'S': return cls.SOUTH
-        elif str == 'E': return cls.EAST
-        elif str == 'W': return cls.WEST
-        else: return None
+    def parse(cls, s):
+        if s == 'N':
+            return cls.NORTH
+        if s == 'S':
+            return cls.SOUTH
+        if s == 'E':
+            return cls.EAST
+        if s == 'W':
+            return cls.WEST
+        return None
 
-class Node(object):
+
+class Node:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-    
+
     def __eq__(self, other):
         if isinstance(other, Node):
             return self.x == other.x and self.y == other.y
@@ -43,8 +50,9 @@ class Node(object):
     def __repr__(self):
         return self.__str__()
 
-    def add(self, direction):
-        return Node(self.x + direction.value[0], self.y + direction.value[1])
+    def add(self, d):
+        return Node(self.x + d.value[0], self.y + d.value[1])
+
 
 raw_instructions = get_file()
 current_node = facility_root = Node(0, 0)
@@ -75,7 +83,8 @@ visited = set()
 
 while to_explore:
     node = to_explore.pop()
-    if node in visited: continue
+    if node in visited:
+        continue
 
     visited.add(node)
     distance = distance_to_root[node]

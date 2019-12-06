@@ -1,95 +1,113 @@
 #!/usr/bin/env python3
 
+import os
 import re
-import json
-import itertools
-import hashlib
 
 test_input = False
 
-import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../{}.txt'.format(script_path, 'test' if test_input else 'input')
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../{}.txt'.format(SCRIPT_PATH, 'test' if test_input else 'input')
+
 
 def get_file():
-    with open(filename) as f:
+    with open(FILENAME) as f:
         return f.read()
 
+
 def get_lines():
-    with open(filename) as f:
+    with open(FILENAME) as f:
         return [line.strip() for line in f.readlines()]
+
 
 def get_numbers_by_line(allow_negatives=True):
     regex = r'-?\d+' if allow_negatives else r'\d+'
     return [[int(match) for match in re.findall(regex, line)] for line in get_lines()]
 
+
 def get_numbers_from_line(line, allow_negatives=True):
     regex = r'-?\d+' if allow_negatives else r'\d+'
     return [int(match) for match in re.findall(regex, line)]
+
 
 def addr(A, B, C, reg):
     reg[C] = reg[A] + reg[B]
     return reg
 
+
 def addi(A, B, C, reg):
     reg[C] = reg[A] + B
     return reg
+
 
 def mulr(A, B, C, reg):
     reg[C] = reg[A] * reg[B]
     return reg
 
+
 def muli(A, B, C, reg):
     reg[C] = reg[A] * B
     return reg
+
 
 def banr(A, B, C, reg):
     reg[C] = reg[A] & reg[B]
     return reg
 
+
 def bani(A, B, C, reg):
     reg[C] = reg[A] & B
     return reg
+
 
 def borr(A, B, C, reg):
     reg[C] = reg[A] | reg[B]
     return reg
 
+
 def bori(A, B, C, reg):
     reg[C] = reg[A] | B
     return reg
 
-def setr(A, B, C, reg):
+
+def setr(A, _, C, reg):
     reg[C] = reg[A]
     return reg
 
-def seti(A, B, C, reg):
+
+def seti(A, _, C, reg):
     reg[C] = A
     return reg
+
 
 def gtir(A, B, C, reg):
     reg[C] = 1 if A > reg[B] else 0
     return reg
 
+
 def gtri(A, B, C, reg):
     reg[C] = 1 if reg[A] > B else 0
     return reg
+
 
 def gtrr(A, B, C, reg):
     reg[C] = 1 if reg[A] > reg[B] else 0
     return reg
 
+
 def eqir(A, B, C, reg):
     reg[C] = 1 if A == reg[B] else 0
     return reg
+
 
 def eqri(A, B, C, reg):
     reg[C] = 1 if reg[A] == B else 0
     return reg
 
+
 def eqrr(A, B, C, reg):
     reg[C] = 1 if reg[A] == reg[B] else 0
     return reg
+
 
 ops = [
     addr,
@@ -112,9 +130,9 @@ ops = [
 
 ambiguous_samples = 0
 lines = get_lines()
-for index, line in enumerate(lines):
-    if 'Before' in line:
-        before = get_numbers_from_line(line)
+for index, l in enumerate(lines):
+    if 'Before' in l:
+        before = get_numbers_from_line(l)
         op = get_numbers_from_line(lines[index + 1])
         after = get_numbers_from_line(lines[index + 2])
 

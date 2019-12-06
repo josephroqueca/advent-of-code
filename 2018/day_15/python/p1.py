@@ -3,12 +3,14 @@
 import queue
 
 import os
-script_path = os.path.dirname(os.path.realpath(__file__))
-filename = '{}/../{}.txt'.format(script_path, 'input')
+SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
+FILENAME = '{}/../{}.txt'.format(SCRIPT_PATH, 'input')
+
 
 def get_lines():
-    with open(filename) as f:
+    with open(FILENAME) as f:
         return f.readlines()
+
 
 walls = set()
 caverns = set()
@@ -24,35 +26,36 @@ max_height = 0
 for y, line in enumerate(get_lines()):
     line = line.strip()
     for x, c in enumerate(line):
-        cell = (x, y)
+        parsed_cell = (x, y)
         if c == '#':
-            walls.add(cell)
+            walls.add(parsed_cell)
         elif c == '.':
-            caverns.add(cell)
+            caverns.add(parsed_cell)
         elif c == 'G':
             gob_id = 'G{}'.format(total_goblins)
-            goblins[gob_id] = { 'id': gob_id, 'attack': 3, 'hp': 200, 'x': x, 'y': y }
-            beings[cell] = gob_id
+            goblins[gob_id] = {'id': gob_id, 'attack': 3, 'hp': 200, 'x': x, 'y': y}
+            beings[parsed_cell] = gob_id
             total_goblins += 1
-            caverns.add(cell)
+            caverns.add(parsed_cell)
         elif c == 'E':
             elf_id = 'E{}'.format(total_elves)
-            elves[elf_id] = { 'id': elf_id, 'attack': 3, 'hp': 200, 'x': x, 'y': y }
-            beings[cell] = elf_id
+            elves[elf_id] = {'id': elf_id, 'attack': 3, 'hp': 200, 'x': x, 'y': y}
+            beings[parsed_cell] = elf_id
             total_elves += 1
-            caverns.add(cell)
+            caverns.add(parsed_cell)
 
         if y == 0:
             max_width += 1
     max_height += 1
 
+
 def reading_order(c1, c2):
     if c1[1] < c2[1]:
         return c1
-    elif c2[1] < c1[1]:
+    if c2[1] < c1[1]:
         return c2
-    else:
-        return c1 if c1[0] < c2[0] else c2
+    return c1 if c1[0] < c2[0] else c2
+
 
 def neighbors(n):
     ns = []
@@ -74,10 +77,11 @@ def neighbors(n):
             ns.append(pot)
     return ns
 
+
 def bfs(cell, targets):
     targets = set(targets)
     q = queue.PriorityQueue()
-    dist = { cell: 0 }
+    dist = {cell: 0}
     prev = {}
 
     q.put((0, 0, 0, cell))
@@ -96,30 +100,34 @@ def bfs(cell, targets):
         n = q.get()[3]
 
         for ne in neighbors(n):
-            if ne in prev: continue
+            if ne in prev:
+                continue
 
             if ne in caverns and ne not in beings:
                 alt = dist[n] + 1
                 if ne not in dist or alt < dist[ne]:
                     dist[ne] = alt
                     prev[ne] = n
-                    if ne in targets: return build_path(ne)[1]
+                    if ne in targets:
+                        return build_path(ne)[1]
                     q.put((alt, ne[1], ne[0], ne))
     return None
 
-def remove(being):
-    if being['id'][0] == 'G':
-        del goblins[being['id']]
-    else:
-        del elves[being['id']]
-    del beings[(being['x'], being['y'])]
 
-def get_target(cell, being_type):
+def remove(removed):
+    if removed['id'][0] == 'G':
+        del goblins[removed['id']]
+    else:
+        del elves[removed['id']]
+    del beings[(removed['x'], removed['y'])]
+
+
+def get_target(cell, friendly_type):
     enemies = []
     for n in neighbors(cell):
-        if being_type == 'E' and n in beings and beings[n][0] == 'G':
+        if friendly_type == 'E' and n in beings and beings[n][0] == 'G':
             enemies.append((goblins[beings[n]], n))
-        elif being_type == 'G' and n in beings and beings[n][0] == 'E':
+        elif friendly_type == 'G' and n in beings and beings[n][0] == 'E':
             enemies.append((elves[beings[n]], n))
     target = None
     for e in enemies:
@@ -133,6 +141,7 @@ def get_target(cell, being_type):
                 target = e
     return target[0] if target else None
 
+
 def get_target_spaces(enemies):
     spaces = []
     for enemy_id in enemies:
@@ -142,27 +151,10 @@ def get_target_spaces(enemies):
         spaces.extend(adjacent)
     return spaces
 
+
 fighting = True
 current_round = 0
 
-def print_status():
-    print(current_round)
-    for y in range(max_height):
-        row = ""
-        health = ""
-        for x in range(max_width):
-            cell = (x, y)
-            if cell in beings:
-                being = elves[beings[cell]] if beings[cell][0] == 'E' else goblins[beings[cell]]
-                row += beings[cell][0]
-                health += ' {}({})'.format(beings[cell], being['hp'])
-            elif cell in caverns:
-                row += '.'
-            elif cell in walls:
-                row += '#'
-            else:
-                row += 'X'
-        print(row, health)
 
 # print_status()
 while fighting:
@@ -179,11 +171,12 @@ while fighting:
             break
         being = elves[being_id] if being_type == 'E' else goblins[being_id]
 
-        target = get_target(being_position, being_type)
-        if target:
-            target['hp'] -= being['attack']
-            if target['hp'] <= 0:
-                remove(target)
+        # pylint: disable=unsupported-assignment-operation, unsubscriptable-object
+        current_target = get_target(being_position, being_type)
+        if current_target is not None:
+            current_target['hp'] -= being['attack']
+            if current_target['hp'] <= 0:
+                remove(current_target)
         else:
             open_spaces = get_target_spaces(elves if being_type == 'G' else goblins)
             if open_spaces:
@@ -198,11 +191,11 @@ while fighting:
                         goblins[being_id]['x'] = next_space[0]
                         goblins[being_id]['y'] = next_space[1]
             if next_space:
-                target = get_target(next_space, being_type)
-                if target:
-                    target['hp'] -= being['attack']
-                    if target['hp'] <= 0:
-                        remove(target)
+                current_target = get_target(next_space, being_type)
+                if current_target:
+                    current_target['hp'] -= being['attack']
+                    if current_target['hp'] <= 0:
+                        remove(current_target)
     current_round += 1
 
 survivors = elves if elves else goblins

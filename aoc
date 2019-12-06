@@ -125,7 +125,7 @@ class AOC:
         process = self._language.run(self.working_dir, self.challenge)
         response = process.stdout.decode('utf-8').strip()
 
-        print('-----\n{response}-----\n'.format(response=response))
+        print('-----\n{response}\n-----\n'.format(response=response))
 
         output_file = os.path.join('.', str(self.challenge.year), 'day_{day}'.format(
             day=self.challenge.day), 'output_{part}.txt'.format(part=self.challenge.part))
