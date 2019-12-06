@@ -15,8 +15,8 @@ fn part_two(input: String) {
 /* Main + Input
 ================================================= */
 
-use aoc_util::aoc;
+use aoc_util::{aoc, AOCParams};
 
 fn main() {
-    aoc(&part_one, &part_two, false);
+    aoc(&part_one, &part_two, AOCParams::new(false, None));
 }
