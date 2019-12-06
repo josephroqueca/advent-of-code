@@ -123,6 +123,11 @@ class AOC:
     def run(self, save):
         self._validate_state()
         process = self._language.run(self.working_dir, self.challenge)
+
+        if process is None:
+            print('Solution failed to run.')
+            return
+
         response = process.stdout.decode('utf-8').strip()
 
         print('-----\n{response}\n-----\n'.format(response=response))
@@ -322,7 +327,7 @@ class SupportedLanguage(Enum):
         )
 
     def _compile(self, challenge, command):
-        subprocess.run(command + [
+        return subprocess.run(command + [
             self._source_file(challenge),
             '-o',
             self._compile_file(challenge),
@@ -335,11 +340,14 @@ class SupportedLanguage(Enum):
         if self in [SupportedLanguage.PYTHON, SupportedLanguage.RUBY]:
             return self._execute([self.id()], self._source_file(challenge))
         if self == SupportedLanguage.HASKELL:
-            self._compile(challenge, [
+            compile_result = self._compile(challenge, [
                 'stack',
                 'ghc',
                 '--',
             ])
+            if compile_result.returncode != 0:
+                print('Compilation failed.')
+                return None
             return self._execute([], self._compile_file(challenge))
         if self == SupportedLanguage.RUST:
             with cd(directory):

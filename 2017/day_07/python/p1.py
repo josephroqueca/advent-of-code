@@ -28,5 +28,5 @@ for line in PUZZLE_INPUT:
     programMap[program.name] = program
 
 subPrograms = {program for programName in programMap for program in programMap[programName].heldPrograms}
-baseProgram = [x for x in programMap if x not in subPrograms]
-print("The bottom program is", baseProgram)
+baseProgram = ''.join([x for x in programMap if x not in subPrograms])
+print('The bottom program is', baseProgram)

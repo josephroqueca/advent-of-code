@@ -14,31 +14,33 @@ class Program:
         components = params.split()
         self.name = components[0]
         self.weight = int(components[1][1:-1])
-        self.heldPrograms = []
+        self.held_programs = []
 
         if len(components) > 2:
-            self.heldPrograms = [name if name[-1] != "," else name[0:-1] for name in components[3:]]
+            self.held_programs = [name if name[-1] != "," else name[0:-1] for name in components[3:]]
 
     def total_weight(self):
         weight = self.weight
-        subProgramWeights = [programMap[name].total_weight() for name in self.heldPrograms]
-        if not subProgramWeights:
+        sub_program_weights = [program_map[name].total_weight() for name in self.held_programs]
+        if not sub_program_weights:
             return weight
-        subWeight = sum(subProgramWeights)
-        if subWeight / len(subProgramWeights) != subProgramWeights[0]:
-            print(self.name, self.weight, subProgramWeights)
-            print([(name, programMap[name].weight, programMap[name].total_weight()) for name in self.heldPrograms])
-        return weight + subWeight
+        sub_weight = sum(sub_program_weights)
+        if sub_weight / len(sub_program_weights) != sub_program_weights[0]:
+            print(self.name, self.weight, sub_program_weights)
+            print([(name, program_map[name].weight, program_map[name].total_weight()) for name in self.held_programs])
+        return weight + sub_weight
 
 
-programMap = {}
+program_map = {}
 for line in PUZZLE_INPUT:
     if not line:
         continue
     program = Program(line)
-    programMap[program.name] = program
+    program_map[program.name] = program
 
-subPrograms = {program for programName in programMap for program in programMap[programName].heldPrograms}
-baseProgramName = [x for x in programMap if x not in subPrograms][0]
-baseProgram = programMap[baseProgramName]
-baseProgram.total_weight()
+sub_programs = {program for program_name in program_map for program in program_map[program_name].held_programs}
+base_program_name = [x for x in program_map if x not in sub_programs][0]
+base_program = program_map[base_program_name]
+base_weight = base_program.total_weight()
+
+print('The weight needs to be', base_weight)

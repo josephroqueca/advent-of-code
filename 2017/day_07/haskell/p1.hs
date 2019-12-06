@@ -31,19 +31,13 @@ extractProgramWeight' [')'] = ""
 extractProgramWeight' ('(':xs) = extractProgramWeight' xs
 extractProgramWeight' (x:xs) = x : extractProgramWeight' xs
 
-flatten :: [[a]] -> [a]
-flatten [] = []
-flatten (x:xs) = x ++ foldr (++) [] xs
-
--- createTree :: Program -> Map String Program -> Tree Program
-
 main :: IO()
 main = do
     scriptDir <- getProgPath
     input <- readFile (scriptDir ++ "/../input.txt")
     let programs = map buildProgram (lines input)
     let programMap = Map.fromList $ zip (map programName programs) programs
-    let subPrograms = Set.fromList . flatten $ map heldPrograms (Map.elems programMap)
+    let subPrograms = Set.fromList . concat $ map heldPrograms (Map.elems programMap)
     let notMember x = Set.notMember x subPrograms in
         let baseProgram = filter notMember (Map.keys programMap) in
-            print baseProgram
+            putStr ("The bottom program is " ++ head baseProgram)
