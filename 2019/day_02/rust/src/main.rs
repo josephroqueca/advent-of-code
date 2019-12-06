@@ -1,4 +1,4 @@
-use aoc_computer::Program;
+use opcode_computer::Program;
 
 /* Part 1
 ================================================= */
