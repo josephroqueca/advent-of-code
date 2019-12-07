@@ -135,6 +135,7 @@ class AOC:
             print(error)
 
         if process.returncode != 0:
+            print(response)
             return
 
         print('-----\n{response}\n-----\n'.format(response=response))
