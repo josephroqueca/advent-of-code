@@ -1,0 +1,10 @@
+[package]
+name = "advent_of_code"
+version = "0.1.0"
+authors = ["Joseph Roque <contact@josephroque.ca>"]
+edition = "2018"
+
+[dependencies]
+itertools = "0.8.2"
+aoc_util = { path = "../../../util/rust/util" }
+opcode_computer = { path = "../../../util/rust/opcode_computer" }
