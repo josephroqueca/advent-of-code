@@ -336,4 +336,42 @@ mod tests {
 
         assert_eq!(max_thruster_signal, 43210);
     }
+
+    #[test]
+    fn max_thruster_signal_2() {
+        let phase_sequence = [0, 1, 2, 3, 4];
+
+        let max_thruster_signal = phase_sequence.iter().fold(0, |acc, &phase_setting| {
+            Program::from_str(
+                "3,23,3,24,1002,24,10,24,1002,23,-1,23,101,5,23,23,1,24,23,23,4,23,99,0,0",
+            )
+            .push(phase_setting)
+            .push(acc)
+            .run()
+            .output()
+            .pop()
+            .unwrap()
+        });
+
+        assert_eq!(max_thruster_signal, 54321);
+    }
+
+    #[test]
+    fn max_thruster_signal_3() {
+        let phase_sequence = [1, 0, 4, 3, 2];
+
+        let max_thruster_signal = phase_sequence.iter().fold(0, |acc, &phase_setting| {
+            Program::from_str(
+                "3,31,3,32,1002,32,10,32,1001,31,-2,31,1007,31,0,33,1002,33,7,33,1,33,31,31,1,32,31,31,4,31,99,0,0,0",
+            )
+            .push(phase_setting)
+            .push(acc)
+            .run()
+            .output()
+            .pop()
+            .unwrap()
+        });
+
+        assert_eq!(max_thruster_signal, 65210);
+    }
 }
