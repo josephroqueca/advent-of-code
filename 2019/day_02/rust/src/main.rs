@@ -4,11 +4,7 @@ use opcode_computer::Program;
 ================================================= */
 
 fn part_one(input: String) {
-    let result = Program::from_str(&input)
-        .set(1, 12)
-        .set(2, 2)
-        .run()
-        .unwrap();
+    let result = Program::from_str(&input).set(1, 12).set(2, 2).run().get(0);
 
     println!("The value at position 0 is {}", result);
 }
@@ -23,7 +19,7 @@ fn part_two(input: String) {
                 .set(1, noun)
                 .set(2, verb)
                 .run()
-                .unwrap();
+                .get(0);
 
             if result == 19690720 {
                 println!("100 * noun + verb is {}", 100 * noun + verb);

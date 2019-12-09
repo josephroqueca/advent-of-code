@@ -4,12 +4,14 @@ use opcode_computer::Program;
 ================================================= */
 
 fn part_one(input: String) {
-    let mut program = Program::from_str(&input);
-    let _ = program.push(1).run();
-
     println!(
         "The program produces diagnostic code {}",
-        program.output().pop().unwrap()
+        Program::from_str(&input)
+            .push(1)
+            .run()
+            .output()
+            .pop()
+            .unwrap()
     );
 }
 
@@ -22,7 +24,12 @@ fn part_two(input: String) {
 
     println!(
         "The program produces diagnostic code {}",
-        program.output().pop().unwrap()
+        Program::from_str(&input)
+            .push(5)
+            .run()
+            .output()
+            .pop()
+            .unwrap()
     )
 }
 

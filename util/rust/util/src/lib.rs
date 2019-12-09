@@ -40,17 +40,15 @@ pub fn aoc(p1: &dyn Fn(String) -> (), p2: &dyn Fn(String) -> (), params: AOCPara
 }
 
 fn get_test_input() -> String {
-    let input_file = Path::new("../test.txt");
-
-    if input_file.exists() {
-        return fs::read_to_string(input_file).unwrap();
-    }
-
-    String::new()
+    read_file("../test.txt")
 }
 
 fn get_input() -> String {
-    let input_file = Path::new("../input.txt");
+    read_file("../input.txt")
+}
+
+pub fn read_file(file: &str) -> String {
+    let input_file = Path::new(&file);
 
     if input_file.exists() {
         return fs::read_to_string(input_file).unwrap();

@@ -42,13 +42,14 @@ impl Program {
         self
     }
 
-    pub fn run(&mut self) -> i32 {
+    pub fn run(&mut self) -> &mut Program {
         self.output.clear();
         self.position = 0;
 
         loop {
             let position = self.position;
-            let instruction = Instruction::from(self.get(position, &ParameterMode::Immediate));
+            let instruction =
+                Instruction::from(self.get_internal(position, &ParameterMode::Immediate));
 
             // println!(
             //     "Position: {}\nInstruction: {:?}\nMemory: {:?}",
@@ -106,7 +107,8 @@ impl Program {
             self.position += instruction.opcode.jump_after_instruction();
         }
 
-        self.get(0, &ParameterMode::Immediate)
+        self
+        // self.get(0, &ParameterMode::Immediate)
     }
 
     fn read_input(&mut self, position: usize, instruction: &Instruction) {
@@ -116,13 +118,13 @@ impl Program {
 
     fn print_output(&mut self, position: usize, instruction: &Instruction) {
         self.output
-            .push_back(self.get(position + 1, &instruction.parameter_mode.0));
+            .push_back(self.get_internal(position + 1, &instruction.parameter_mode.0));
     }
 
     fn jump(&mut self, position: usize, instruction: &Instruction, jump_if_true: bool) {
-        let value = self.get(position + 1, &instruction.parameter_mode.0);
+        let value = self.get_internal(position + 1, &instruction.parameter_mode.0);
         if (jump_if_true && value != 0) || (!jump_if_true && value == 0) {
-            self.position = self.get(position + 2, &instruction.parameter_mode.1) as usize;
+            self.position = self.get_internal(position + 2, &instruction.parameter_mode.1) as usize;
         } else {
             self.position += 3;
         }
@@ -140,8 +142,8 @@ impl Program {
             position + 3,
             &instruction.parameter_mode.2,
             operation(
-                self.get(position + 1, &instruction.parameter_mode.0),
-                self.get(position + 2, &instruction.parameter_mode.1),
+                self.get_internal(position + 1, &instruction.parameter_mode.0),
+                self.get_internal(position + 2, &instruction.parameter_mode.1),
             ),
         );
     }
@@ -153,7 +155,8 @@ impl Program {
     fn set_internal(&mut self, position: usize, mode: &ParameterMode, value: i32) -> &mut Program {
         match mode {
             ParameterMode::Position => {
-                let immediate_position = self.get(position, &ParameterMode::Immediate) as usize;
+                let immediate_position =
+                    self.get_internal(position, &ParameterMode::Immediate) as usize;
                 self.memory[immediate_position] = value
             }
             ParameterMode::Immediate => self.memory[position] = value,
@@ -161,10 +164,14 @@ impl Program {
         self
     }
 
-    fn get(&self, position: usize, mode: &ParameterMode) -> i32 {
+    pub fn get(&self, position: usize) -> i32 {
+        self.get_internal(position, &ParameterMode::Immediate)
+    }
+
+    fn get_internal(&self, position: usize, mode: &ParameterMode) -> i32 {
         match mode {
             ParameterMode::Position => {
-                self.memory[self.get(position, &ParameterMode::Immediate) as usize]
+                self.memory[self.get_internal(position, &ParameterMode::Immediate) as usize]
             }
             ParameterMode::Immediate => self.memory[position],
         }
@@ -174,6 +181,7 @@ impl Program {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use aoc_util::read_file;
 
     #[test]
     fn test_small_programs() {
@@ -198,95 +206,134 @@ mod tests {
     }
 
     #[test]
+    fn test_day_2_part_1() {
+        assert_eq!(
+            Program::from_str(&read_file("./fixtures/day2.txt"))
+                .set(1, 12)
+                .set(2, 2)
+                .run()
+                .get(0),
+            3562624
+        )
+    }
+
+    #[test]
+    fn test_day_2_part_2() {
+        assert_eq!(
+            Program::from_str(&read_file("./fixtures/day2.txt"))
+                .set(1, 82)
+                .set(2, 98)
+                .run()
+                .get(0),
+            19690720
+        )
+    }
+
+    #[test]
+    fn test_day_5_part_1() {
+        assert_eq!(
+            Program::from_str(&read_file("./fixtures/day5.txt"))
+                .push(1)
+                .run()
+                .output()
+                .pop()
+                .unwrap(),
+            2845163
+        )
+    }
+
+    #[test]
+    fn test_day_5_part_2() {
+        assert_eq!(
+            Program::from_str(&read_file("./fixtures/day5.txt"))
+                .push(5)
+                .run()
+                .output()
+                .pop()
+                .unwrap(),
+            9436229
+        )
+    }
+
+    #[test]
     fn setting_memory_not_reset() {
         let mut program = Program::from_str("1,0,0,0,99");
-        assert_eq!(program.run(), 2);
 
-        assert_eq!(program.reset().set(0, 2).run(), 4);
+        assert_eq!(program.run().get(0), 2);
+        assert_eq!(program.reset().set(0, 2).run().get(0), 4);
     }
 
     #[test]
     fn test_equals_eight_position_mode() {
         let mut equals_eight = Program::from_str("3,9,8,9,10,9,4,9,99,-1,8");
-        equals_eight.push(1).run();
-        assert_eq!(equals_eight.output(), vec![0]);
 
-        equals_eight.reset().push(8).run();
-        assert_eq!(equals_eight.output(), vec![1]);
+        assert_eq!(equals_eight.push(1).run().output(), vec![0]);
+        assert_eq!(equals_eight.reset().push(8).run().output(), vec![1]);
     }
 
     #[test]
     fn test_equals_eight_immediate_mode() {
         let mut equals_eight = Program::from_str("3,3,1108,-1,8,3,4,3,99");
-        equals_eight.push(1).run();
-        assert_eq!(equals_eight.output(), vec![0]);
 
-        equals_eight.reset().push(8).run();
-        assert_eq!(equals_eight.output(), vec![1]);
+        assert_eq!(equals_eight.push(1).run().output(), vec![0]);
+        assert_eq!(equals_eight.reset().push(8).run().output(), vec![1]);
     }
 
     #[test]
     fn test_less_than_eight_position_mode() {
         let mut less_than_eight = Program::from_str("3,9,7,9,10,9,4,9,99,-1,8");
-        less_than_eight.push(1).run();
-        assert_eq!(less_than_eight.output(), vec![1]);
 
-        less_than_eight.reset().push(10).run();
-        assert_eq!(less_than_eight.output(), vec![0]);
+        assert_eq!(less_than_eight.push(1).run().output(), vec![1]);
+        assert_eq!(less_than_eight.reset().push(10).run().output(), vec![0]);
     }
 
     #[test]
     fn test_less_than_eight_immediate_mode() {
         let mut less_than_eight = Program::from_str("3,3,1107,-1,8,3,4,3,99");
-        less_than_eight.push(1).run();
-        assert_eq!(less_than_eight.output(), vec![1]);
 
-        less_than_eight.reset().push(10).run();
-        assert_eq!(less_than_eight.output(), vec![0]);
+        assert_eq!(less_than_eight.push(1).run().output(), vec![1]);
+        assert_eq!(less_than_eight.reset().push(10).run().output(), vec![0]);
     }
 
     #[test]
     fn test_jump_if_zero_position_mode() {
         let mut jump_if_zero = Program::from_str("3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9");
-        jump_if_zero.push(1).run();
-        assert_eq!(jump_if_zero.output(), vec![1]);
 
-        jump_if_zero.reset().push(0).run();
-        assert_eq!(jump_if_zero.output(), vec![0]);
+        assert_eq!(jump_if_zero.push(1).run().output(), vec![1]);
+        assert_eq!(jump_if_zero.reset().push(0).run().output(), vec![0]);
     }
 
     #[test]
     fn test_jump_if_zero_immediate_mode() {
         let mut jump_if_zero = Program::from_str("3,3,1105,-1,9,1101,0,0,12,4,12,99,1");
-        jump_if_zero.push(1).run();
-        assert_eq!(jump_if_zero.output(), vec![1]);
 
-        jump_if_zero.reset().push(0).run();
-        assert_eq!(jump_if_zero.output(), vec![0]);
+        assert_eq!(jump_if_zero.push(1).run().output(), vec![1]);
+        assert_eq!(jump_if_zero.reset().push(0).run().output(), vec![0]);
     }
 
     #[test]
     fn compare_to_eight() {
         let mut compare_to_eight = Program::from_str("3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99");
-        compare_to_eight.push(7).run();
-        assert_eq!(compare_to_eight.output(), vec![999]);
 
-        compare_to_eight.reset().push(8).run();
-        assert_eq!(compare_to_eight.output(), vec![1000]);
-
-        compare_to_eight.reset().push(9).run();
-        assert_eq!(compare_to_eight.output(), vec![1001]);
+        assert_eq!(compare_to_eight.push(7).run().output(), vec![999]);
+        assert_eq!(compare_to_eight.reset().push(8).run().output(), vec![1000]);
+        assert_eq!(compare_to_eight.reset().push(9).run().output(), vec![1001]);
     }
 
-    // #[test]
-    // fn max_thruster_signal_1() {
-    //     let phase_sequence = [4, 3, 2, 1, 0];
+    #[test]
+    fn max_thruster_signal_1() {
+        let phase_sequence = [4, 3, 2, 1, 0];
 
-    //     let max_thruster_signal = phase_sequence.iter().fold(0, |(&acc, &phase_setting) {
-    //         let mut program = Program::from_str("3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0");
-    //         program.run();
-    //     })
-    //     // let mut max_thruster_signal = Program::from_str("3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0");
+        let max_thruster_signal = phase_sequence.iter().fold(0, |acc, &phase_setting| {
+            Program::from_str("3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0")
+                .push(phase_setting)
+                .push(acc)
+                .run()
+                .output()
+                .pop()
+                .unwrap()
+        });
 
-    // }
+        assert_eq!(max_thruster_signal, 43210);
+    }
 }
