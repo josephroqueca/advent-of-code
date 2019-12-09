@@ -7,11 +7,26 @@ use instruction::ParameterMode;
 use std::collections::VecDeque;
 use std::iter::FromIterator;
 
-#[derive(Debug)]
-pub struct Program {
+#[derive(Debug, Clone)]
+pub struct State {
     original_memory: Vec<i32>,
-    pub memory: Vec<i32>,
+    memory: Vec<i32>,
     position: usize,
+}
+
+impl State {
+    fn reset(&mut self) {
+        self.memory = self.original_memory.clone();
+        self.position = 0;
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Program {
+    // pub memory: Vec<i32>,
+    pub halted: bool,
+    pub state: State,
+    // position: usize,
     input: VecDeque<i32>,
     output: VecDeque<i32>,
 }
@@ -20,11 +35,16 @@ impl Program {
     pub fn from_str(s: &str) -> Program {
         let parsed: Vec<i32> = s.split(",").map(|x| x.parse::<i32>().unwrap()).collect();
         Program {
-            original_memory: parsed.clone(),
-            memory: parsed,
-            position: 0,
+            // memory: parsed,
+            // position: 0,
             input: VecDeque::new(),
             output: VecDeque::new(),
+            halted: false,
+            state: State {
+                original_memory: parsed.clone(),
+                memory: parsed,
+                position: 0,
+            },
         }
     }
 
@@ -38,16 +58,19 @@ impl Program {
     }
 
     pub fn reset(&mut self) -> &mut Program {
-        self.memory = self.original_memory.clone();
+        self.state.reset();
+        self.output.clear();
+        self.halted = false;
         self
     }
 
     pub fn run(&mut self) -> &mut Program {
-        self.output.clear();
-        self.position = 0;
+        if self.halted {
+            return self;
+        }
 
         loop {
-            let position = self.position;
+            let position = self.state.position;
             let instruction =
                 Instruction::from(self.get_internal(position, &ParameterMode::Immediate));
 
@@ -95,25 +118,32 @@ impl Program {
                         },
                     )
                 }
-                OpCode::Input => {
-                    self.read_input(position, &instruction);
-                }
+                OpCode::Input => match self.read_input() {
+                    Some(ref i) => {
+                        self.set_internal(position + 1, &instruction.parameter_mode.0, *i);
+                    }
+                    None => break,
+                },
                 OpCode::Output => {
                     self.print_output(position, &instruction);
                 }
-                OpCode::Halt => break,
+                OpCode::Halt => {
+                    self.halted = true;
+                    break;
+                }
             };
 
-            self.position += instruction.opcode.jump_after_instruction();
+            self.state.position += instruction.opcode.jump_after_instruction();
         }
 
         self
-        // self.get(0, &ParameterMode::Immediate)
     }
 
-    fn read_input(&mut self, position: usize, instruction: &Instruction) {
-        let next = self.input.pop_front().unwrap();
-        self.set_internal(position + 1, &instruction.parameter_mode.0, next);
+    fn read_input(&mut self) -> Option<i32> {
+        match self.input.pop_front() {
+            Some(ref i) => Some(*i),
+            None => None,
+        }
     }
 
     fn print_output(&mut self, position: usize, instruction: &Instruction) {
@@ -124,9 +154,10 @@ impl Program {
     fn jump(&mut self, position: usize, instruction: &Instruction, jump_if_true: bool) {
         let value = self.get_internal(position + 1, &instruction.parameter_mode.0);
         if (jump_if_true && value != 0) || (!jump_if_true && value == 0) {
-            self.position = self.get_internal(position + 2, &instruction.parameter_mode.1) as usize;
+            self.state.position =
+                self.get_internal(position + 2, &instruction.parameter_mode.1) as usize;
         } else {
-            self.position += 3;
+            self.state.position += 3;
         }
     }
 
@@ -157,9 +188,9 @@ impl Program {
             ParameterMode::Position => {
                 let immediate_position =
                     self.get_internal(position, &ParameterMode::Immediate) as usize;
-                self.memory[immediate_position] = value
+                self.state.memory[immediate_position] = value
             }
-            ParameterMode::Immediate => self.memory[position] = value,
+            ParameterMode::Immediate => self.state.memory[position] = value,
         }
         self
     }
@@ -171,10 +202,15 @@ impl Program {
     fn get_internal(&self, position: usize, mode: &ParameterMode) -> i32 {
         match mode {
             ParameterMode::Position => {
-                self.memory[self.get_internal(position, &ParameterMode::Immediate) as usize]
+                self.state.memory[self.get_internal(position, &ParameterMode::Immediate) as usize]
             }
-            ParameterMode::Immediate => self.memory[position],
+            ParameterMode::Immediate => self.state.memory[position],
         }
+    }
+
+    pub fn set_state(&mut self, state: &State) -> &mut Program {
+        self.state = state.clone();
+        self
     }
 }
 
@@ -199,10 +235,30 @@ mod tests {
         ]
         .iter()
         .for_each(|(inital_state, final_state)| {
-            let mut program = Program::from_str(inital_state);
-            program.run();
-            assert_eq!(program.memory, final_state.to_vec());
+            assert_eq!(
+                Program::from_str(inital_state).run().state.memory,
+                final_state.to_vec()
+            );
         })
+    }
+
+    #[test]
+    fn test_set_memory() {
+        let program = Program::from_str("1,0,0,0,99");
+
+        assert_eq!(
+            Program::from_str("2,3,0,3,99")
+                .set_state(&program.state)
+                .state
+                .memory,
+            vec![1, 0, 0, 0, 99]
+        );
+    }
+
+    #[test]
+    fn test_halting() {
+        assert_eq!(Program::from_str("1,0,0,0,99").run().halted, true);
+        assert_eq!(Program::from_str("1,0,0,0,99").run().reset().halted, false);
     }
 
     #[test]
