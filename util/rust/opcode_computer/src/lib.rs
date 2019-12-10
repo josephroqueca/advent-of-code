@@ -73,10 +73,10 @@ impl Program {
             let instruction =
                 Instruction::from(self.get_internal(position, &ParameterMode::Immediate));
 
-            println!(
-                "-----\nPosition: {}\nInstruction: {:?}\nMemory: {:?}, Offset: {}",
-                position, instruction, self.state.memory, self.state.relative_offset,
-            );
+            // println!(
+            //     "-----\nPosition: {}\nInstruction: {:?}\nMemory: {:?}, Offset: {}",
+            //     position, instruction, self.state.memory, self.state.relative_offset,
+            // );
 
             match instruction.opcode {
                 OpCode::Add => {
@@ -151,7 +151,6 @@ impl Program {
 
     fn print_output(&mut self, position: i64, instruction: &Instruction) {
         let output = self.get_internal(position + 1, &instruction.parameter_mode.0);
-        println!("OUTPUTTING {}", output);
         self.output.push_back(output);
     }
 
@@ -189,13 +188,6 @@ impl Program {
             ParameterMode::Immediate => self.set_direct(position, value),
             ParameterMode::Relative => {
                 let parameter = self.get_internal(position, &ParameterMode::Immediate);
-                // println!("Parameter: {}", parameter);
-                // println!(
-                //     "Setting: {} + {} = {}",
-                //     parameter,
-                //     self.state.relative_offset,
-                //     parameter + self.state.relative_offset
-                // );
                 self.set_direct(parameter + self.state.relative_offset, value)
             }
         }
@@ -214,13 +206,6 @@ impl Program {
             ParameterMode::Immediate => self.get_direct(position),
             ParameterMode::Relative => {
                 let parameter = self.get_internal(position, &ParameterMode::Immediate);
-                // println!("Parameter: {}", parameter);
-                // println!(
-                //     "Getting: {} + {} = {}",
-                //     parameter,
-                //     self.state.relative_offset,
-                //     parameter + self.state.relative_offset
-                // );
                 self.get_direct(parameter + self.state.relative_offset)
             }
         }
