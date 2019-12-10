@@ -8,6 +8,7 @@ pub enum OpCode {
     JumpIfFalse,
     LessThan,
     EqualTo,
+    RelativeBaseOffset,
     Halt,
 }
 
@@ -22,6 +23,7 @@ impl OpCode {
             6 => OpCode::JumpIfFalse,
             7 => OpCode::LessThan,
             8 => OpCode::EqualTo,
+            9 => OpCode::RelativeBaseOffset,
             99 => OpCode::Halt,
             _ => unreachable!(),
         }
@@ -30,7 +32,7 @@ impl OpCode {
     pub fn jump_after_instruction(&self) -> usize {
         match self {
             OpCode::Add | OpCode::Multiply | OpCode::LessThan | OpCode::EqualTo => 4,
-            OpCode::Input | OpCode::Output => 2,
+            OpCode::Input | OpCode::Output | OpCode::RelativeBaseOffset => 2,
             OpCode::JumpIfTrue | OpCode::JumpIfFalse => 0,
             OpCode::Halt => 0,
         }
@@ -41,6 +43,7 @@ impl OpCode {
 pub enum ParameterMode {
     Position,
     Immediate,
+    Relative,
 }
 
 impl ParameterMode {
@@ -48,6 +51,7 @@ impl ParameterMode {
         match code {
             0 => ParameterMode::Position,
             1 => ParameterMode::Immediate,
+            2 => ParameterMode::Relative,
             _ => unreachable!(),
         }
     }

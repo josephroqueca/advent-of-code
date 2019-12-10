@@ -12,21 +12,21 @@ pub struct State {
     original_memory: Vec<i32>,
     memory: Vec<i32>,
     position: usize,
+    relative_offset: usize,
 }
 
 impl State {
     fn reset(&mut self) {
         self.memory = self.original_memory.clone();
         self.position = 0;
+        self.relative_offset = 0;
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct Program {
-    // pub memory: Vec<i32>,
     pub halted: bool,
     pub state: State,
-    // position: usize,
     input: VecDeque<i32>,
     output: VecDeque<i32>,
 }
@@ -35,8 +35,6 @@ impl Program {
     pub fn from_str(s: &str) -> Program {
         let parsed: Vec<i32> = s.split(",").map(|x| x.parse::<i32>().unwrap()).collect();
         Program {
-            // memory: parsed,
-            // position: 0,
             input: VecDeque::new(),
             output: VecDeque::new(),
             halted: false,
@@ -44,6 +42,7 @@ impl Program {
                 original_memory: parsed.clone(),
                 memory: parsed,
                 position: 0,
+                relative_offset: 0,
             },
         }
     }
@@ -74,10 +73,10 @@ impl Program {
             let instruction =
                 Instruction::from(self.get_internal(position, &ParameterMode::Immediate));
 
-            // println!(
-            //     "Position: {}\nInstruction: {:?}\nMemory: {:?}",
-            //     position, instruction, self.memory
-            // );
+            println!(
+                "-----\nPosition: {}\nInstruction: {:?}\nMemory: {:?}, Offset: {}",
+                position, instruction, self.state.memory, self.state.relative_offset,
+            );
 
             match instruction.opcode {
                 OpCode::Add => {
@@ -127,6 +126,10 @@ impl Program {
                 OpCode::Output => {
                     self.print_output(position, &instruction);
                 }
+                OpCode::RelativeBaseOffset => {
+                    self.state.relative_offset +=
+                        self.get_internal(position + 1, &instruction.parameter_mode.0) as usize;
+                }
                 OpCode::Halt => {
                     self.halted = true;
                     break;
@@ -147,8 +150,9 @@ impl Program {
     }
 
     fn print_output(&mut self, position: usize, instruction: &Instruction) {
-        self.output
-            .push_back(self.get_internal(position + 1, &instruction.parameter_mode.0));
+        let output = self.get_internal(position + 1, &instruction.parameter_mode.0);
+        println!("OUTPUTTING {}", output);
+        self.output.push_back(output);
     }
 
     fn jump(&mut self, position: usize, instruction: &Instruction, jump_if_true: bool) {
@@ -169,14 +173,12 @@ impl Program {
     ) where
         P: Fn(i32, i32) -> i32,
     {
-        self.set_internal(
-            position + 3,
-            &instruction.parameter_mode.2,
-            operation(
-                self.get_internal(position + 1, &instruction.parameter_mode.0),
-                self.get_internal(position + 2, &instruction.parameter_mode.1),
-            ),
+        let result = operation(
+            self.get_internal(position + 1, &instruction.parameter_mode.0),
+            self.get_internal(position + 2, &instruction.parameter_mode.1),
         );
+
+        self.set_internal(position + 3, &instruction.parameter_mode.2, result);
     }
 
     pub fn set(&mut self, position: usize, value: i32) -> &mut Program {
@@ -188,29 +190,82 @@ impl Program {
             ParameterMode::Position => {
                 let immediate_position =
                     self.get_internal(position, &ParameterMode::Immediate) as usize;
-                self.state.memory[immediate_position] = value
+                self.set_direct(immediate_position, value)
             }
-            ParameterMode::Immediate => self.state.memory[position] = value,
+            ParameterMode::Immediate => self.set_direct(position, value),
+            ParameterMode::Relative => {
+                let parameter = self.get_internal(position, &ParameterMode::Immediate);
+                // println!("Parameter: {}", parameter);
+                // println!(
+                //     "Setting: {} + {} = {}",
+                //     parameter,
+                //     self.state.relative_offset,
+                //     parameter + self.state.relative_offset
+                // );
+                self.set_direct(
+                    (parameter + self.state.relative_offset as i32) as usize,
+                    value,
+                )
+            }
         }
-        self
     }
 
     pub fn get(&self, position: usize) -> i32 {
-        self.get_internal(position, &ParameterMode::Immediate)
+        self.get_internal_unsafe(position, &ParameterMode::Immediate)
     }
 
-    fn get_internal(&self, position: usize, mode: &ParameterMode) -> i32 {
+    fn get_internal(&mut self, position: usize, mode: &ParameterMode) -> i32 {
         match mode {
             ParameterMode::Position => {
-                self.state.memory[self.get_internal(position, &ParameterMode::Immediate) as usize]
+                let position = self.get_internal(position, &ParameterMode::Immediate) as usize;
+                self.get_direct(position)
+            }
+            ParameterMode::Immediate => self.get_direct(position),
+            ParameterMode::Relative => {
+                let parameter = self.get_internal(position, &ParameterMode::Immediate);
+                // println!("Parameter: {}", parameter);
+                // println!(
+                //     "Getting: {} + {} = {}",
+                //     parameter,
+                //     self.state.relative_offset,
+                //     parameter + self.state.relative_offset
+                // );
+                self.get_direct((parameter + self.state.relative_offset as i32) as usize)
+            }
+        }
+    }
+
+    fn get_internal_unsafe(&self, position: usize, mode: &ParameterMode) -> i32 {
+        match mode {
+            ParameterMode::Position => {
+                self.state.memory
+                    [self.get_internal_unsafe(position, &ParameterMode::Immediate) as usize]
             }
             ParameterMode::Immediate => self.state.memory[position],
+            ParameterMode::Relative => self.state.memory[position + self.state.relative_offset],
         }
+    }
+
+    fn get_direct(&mut self, position: usize) -> i32 {
+        self.ensure_position_is_valid(position);
+        self.state.memory[position]
+    }
+
+    fn set_direct(&mut self, position: usize, value: i32) -> &mut Program {
+        self.ensure_position_is_valid(position);
+        self.state.memory[position] = value;
+        self
     }
 
     pub fn set_state(&mut self, state: &State) -> &mut Program {
         self.state = state.clone();
         self
+    }
+
+    fn ensure_position_is_valid(&mut self, position: usize) {
+        while self.state.memory.len() < position + 1 {
+            self.state.memory.push(0);
+        }
     }
 }
 
@@ -429,5 +484,12 @@ mod tests {
         });
 
         assert_eq!(max_thruster_signal, 65210);
+    }
+
+    #[test]
+    fn test_quine() {
+        let mut quine =
+            Program::from_str("109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99");
+        assert_eq!(quine.run().output(), quine.state.original_memory);
     }
 }
