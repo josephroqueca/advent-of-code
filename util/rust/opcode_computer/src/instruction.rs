@@ -13,7 +13,7 @@ pub enum OpCode {
 }
 
 impl OpCode {
-    pub fn from(code: i32) -> OpCode {
+    pub fn from(code: i64) -> OpCode {
         match code {
             1 => OpCode::Add,
             2 => OpCode::Multiply,
@@ -29,7 +29,7 @@ impl OpCode {
         }
     }
 
-    pub fn jump_after_instruction(&self) -> usize {
+    pub fn jump_after_instruction(&self) -> i64 {
         match self {
             OpCode::Add | OpCode::Multiply | OpCode::LessThan | OpCode::EqualTo => 4,
             OpCode::Input | OpCode::Output | OpCode::RelativeBaseOffset => 2,
@@ -47,7 +47,7 @@ pub enum ParameterMode {
 }
 
 impl ParameterMode {
-    pub fn from(code: i32) -> ParameterMode {
+    pub fn from(code: i64) -> ParameterMode {
         match code {
             0 => ParameterMode::Position,
             1 => ParameterMode::Immediate,
@@ -64,7 +64,7 @@ pub struct Instruction {
 }
 
 impl Instruction {
-    pub fn from(code: i32) -> Instruction {
+    pub fn from(code: i64) -> Instruction {
         Instruction {
             opcode: OpCode::from(code % 100),
             parameter_mode: (
