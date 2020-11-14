@@ -303,6 +303,7 @@ class SupportedLanguage(Enum):
     PYTHON = ("python", ".py", "", "", [], False)
     RUBY = ("ruby", ".rb", "", "", [], False)
     RUST = ("rust", ".rs", "src", "", [], True)
+    SWIFT = ("swift", ".swift", "", ".o", ["swiftc"], True)
 
     @classmethod
     def parse(cls, language):
