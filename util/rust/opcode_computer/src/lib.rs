@@ -56,6 +56,11 @@ impl Program {
         Vec::from_iter(self.output.iter().map(|x| x.clone()))
     }
 
+    pub fn clear_output(&mut self) -> &mut Program {
+        self.output.clear();
+        self
+    }
+
     pub fn reset(&mut self) -> &mut Program {
         self.state.reset();
         self.output.clear();
