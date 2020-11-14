@@ -42,20 +42,24 @@ class Challenge:
 
 
 class AOC:
-    def __init__(self):
+    def __init__(self, parser):
+        self._parser = parser
         self._session = None
         self._language = None
         self.challenge = Challenge()
         if os.path.exists(cache_file):
             with open(cache_file) as cache:
-                lines = cache.readlines()
-                self._language = SupportedLanguage.parse(lines[0][lines[0].index('=') + 1:].strip())
-                self._session = lines[4][lines[4].index('=') + 1:].strip()
+                try:
+                    lines = cache.readlines()
+                    self._session = lines[4][lines[4].index('=') + 1:].strip()
+                    self._language = SupportedLanguage.parse(lines[0][lines[0].index('=') + 1:].strip())
 
-                year = lines[1][lines[1].index('=') + 1:].strip()
-                day = lines[2][lines[2].index('=') + 1:].strip()
-                part = lines[3][lines[3].index('=') + 1:].strip()
-                self.challenge = Challenge(year, day, part)
+                    year = lines[1][lines[1].index('=') + 1:].strip()
+                    day = lines[2][lines[2].index('=') + 1:].strip()
+                    part = lines[3][lines[3].index('=') + 1:].strip()
+                    self.challenge = Challenge(year, day, part)
+                except:
+                    pass
 
         if self.is_valid_state():
             self.working_dir = os.path.join(
@@ -70,7 +74,10 @@ class AOC:
     ##################################################
 
     def create(self):
-        self._validate_state()
+        if not self.is_valid_state():
+            print('Invalid usage.')
+            self._parser.print_help()
+            return
 
         if os.path.exists(self.working_dir):
             return
@@ -79,7 +86,7 @@ class AOC:
             '.',
             'util',
             self._language.id(),
-            'starter.{extension}'.format(extension=self._language.extension())
+            'starter{extension}'.format(extension=self._language.extension())
         )
         supporting_dir = os.path.join('.', 'util', self._language.id(), 'supporting_files')
 
@@ -90,7 +97,7 @@ class AOC:
                 copy(starter_file, os.path.join(
                     self.working_dir,
                     self._language.src_prefix(),
-                    '{dest}.{extension}'.format(dest=dest, extension=self._language.extension())
+                    '{dest}{extension}'.format(dest=dest, extension=self._language.extension())
                 ))
 
         if os.path.exists(supporting_dir):
@@ -122,7 +129,7 @@ class AOC:
 
     def run(self, save):
         self._validate_state()
-        process = self._language.run(self.working_dir, self.challenge)
+        process = self._language.run(os.path.dirname(os.path.realpath(__file__)), self.working_dir, self.challenge)
 
         if process is None:
             print('Solution failed to run.')
@@ -170,11 +177,11 @@ class AOC:
 
     def __str__(self):
         return 'language={language}\nyear={year}\nday={day}\npart={part}\nsession={session}'.format(
-            language=self._language.id(),
-            year=self.challenge.year,
-            day=self.challenge.day,
-            part=self.challenge.part,
-            session=self._session
+            language=self._language.id() if self._language else '',
+            year=self.challenge.year if self.challenge else '',
+            day=self.challenge.day if self.challenge else '',
+            part=self.challenge.part if self.challenge else '',
+            session=self._session  if self._session else ''
         )
 
     def set_env(self, session, language, year, day, part):
@@ -203,12 +210,8 @@ class AOC:
             self.working_dir = None
 
     def cache_env(self):
-        try:
-            self._validate_state()
-            with open(cache_file, 'w') as cache:
-                cache.write(str(self))
-        except:
-            pass
+        with open(cache_file, 'w') as cache:
+            cache.write(str(self))
 
     def is_valid_state(self, with_session=False):
         try:
@@ -273,10 +276,11 @@ def main(args=None):
     parser.add_argument('--part', help='Sets the current part. Cached for future runs')
     parsed = parser.parse_args()
 
-    aoc = AOC()
+    aoc = AOC(parser)
     aoc.set_env(parsed.session, parsed.language, parsed.year, parsed.day, parsed.part)
 
-    aoc.create()
+    if parsed.create:
+        aoc.create()
     if parsed.fetch:
         aoc.fetch()
     elif parsed.run:
@@ -294,10 +298,11 @@ def main(args=None):
 
 
 class SupportedLanguage(Enum):
-    HASKELL = ("haskell", "hs", "", "hsx")
-    PYTHON = ("python", "py", "", "")
-    RUBY = ("ruby", "rb", "", "")
-    RUST = ("rust", "rs", "src", "")
+    # For description of params, see defs below
+    HASKELL = ("haskell", ".hs", "", ".hsx", ['stack', 'ghc', '--'], False)
+    PYTHON = ("python", ".py", "", "", [], False)
+    RUBY = ("ruby", ".rb", "", "", [], False)
+    RUST = ("rust", ".rs", "src", "", [], True)
 
     @classmethod
     def parse(cls, language):
@@ -318,48 +323,56 @@ class SupportedLanguage(Enum):
     def compile_extension(self):
         return self.value[3]
 
-    def _source_file(self, challenge):
+    def compile_command(self):
+        return self.value[4]
+
+    def should_enter_directory(self):
+        return self.value[5]
+
+    def _source_file(self, challenge, base_directory):
         return os.path.join(
+            base_directory,
             str(challenge.year),
             'day_{day}'.format(day=challenge.day),
             self.id(),
-            'p{part}.{extension}'.format(part=challenge.part, extension=self.extension())
+            'p{part}{extension}'.format(part=challenge.part, extension=self.extension())
         )
 
-    def _compile_file(self, challenge):
+    def _compile_file(self, challenge, base_directory):
         return os.path.join(
+            base_directory,
             str(challenge.year),
             'day_{day}'.format(day=challenge.day),
             self.id(),
-            'p{part}.{extension}'.format(part=challenge.part, extension=self.compile_extension())
+            'p{part}{extension}'.format(part=challenge.part, extension=self.compile_extension())
         )
 
-    def _compile(self, challenge, command):
+    def _compile(self, challenge, command, base_directory):
         return subprocess.run(command + [
-            self._source_file(challenge),
+            self._source_file(challenge, base_directory),
             '-o',
-            self._compile_file(challenge),
+            self._compile_file(challenge, base_directory),
         ])
 
     def _execute(self, command, file):
         return subprocess.run(command + [file], capture_output=True)
 
-    def run(self, directory, challenge):
+    def run(self, base_directory, working_directory, challenge, is_recursed=False):
+        if not is_recursed:
+            if self.should_enter_directory():
+                with cd(working_directory):
+                    return self.run(base_directory, working_directory, challenge, True)
+
         if self in [SupportedLanguage.PYTHON, SupportedLanguage.RUBY]:
-            return self._execute([self.id()], self._source_file(challenge))
-        if self == SupportedLanguage.HASKELL:
-            compile_result = self._compile(challenge, [
-                'stack',
-                'ghc',
-                '--',
-            ])
+            return self._execute([self.id()], self._source_file(challenge, base_directory))
+        if self in [SupportedLanguage.SWIFT, SupportedLanguage.HASKELL]:
+            compile_result = self._compile(challenge, self.compile_command(), base_directory)
             if compile_result.returncode != 0:
                 print('Compilation failed.')
                 return None
-            return self._execute([], self._compile_file(challenge))
+            return self._execute([], self._compile_file(challenge, base_directory))
         if self == SupportedLanguage.RUST:
-            with cd(directory):
-                return self._execute(['cargo', 'run'], challenge.part)
+            return self._execute(['cargo', 'run'], challenge.part)
         return None
 
 # Change Directory
