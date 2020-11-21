@@ -304,6 +304,7 @@ class SupportedLanguage(Enum):
     RUBY = ("ruby", ".rb", "", "", [], False)
     RUST = ("rust", ".rs", "src", "", [], True)
     SWIFT = ("swift", ".swift", "", ".o", ["swiftc"], True)
+    CSHARP = ("csharp", ".cs", "", "", [], True)
 
     @classmethod
     def parse(cls, language):
@@ -355,8 +356,8 @@ class SupportedLanguage(Enum):
             self._compile_file(challenge, base_directory),
         ])
 
-    def _execute(self, command, file):
-        return subprocess.run(command + [file], capture_output=True)
+    def _execute(self, command):
+        return subprocess.run(command, capture_output=True)
 
     def run(self, base_directory, working_directory, challenge, is_recursed=False):
         if not is_recursed:
@@ -365,15 +366,17 @@ class SupportedLanguage(Enum):
                     return self.run(base_directory, working_directory, challenge, True)
 
         if self in [SupportedLanguage.PYTHON, SupportedLanguage.RUBY]:
-            return self._execute([self.id()], self._source_file(challenge, base_directory))
+            return self._execute([self.id(), self._source_file(challenge, base_directory)])
         if self in [SupportedLanguage.SWIFT, SupportedLanguage.HASKELL]:
             compile_result = self._compile(challenge, self.compile_command(), base_directory)
             if compile_result.returncode != 0:
                 print('Compilation failed.')
                 return None
-            return self._execute([], self._compile_file(challenge, base_directory))
+            return self._execute([self._compile_file(challenge, base_directory)])
         if self == SupportedLanguage.RUST:
-            return self._execute(['cargo', 'run'], challenge.part)
+            return self._execute(['cargo', 'run', challenge.part])
+        if self == SupportedLanguage.CSHARP:
+            return self._execute(['dotnet', 'run', '--', challenge.part])
         return None
 
 # Change Directory

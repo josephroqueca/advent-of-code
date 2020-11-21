@@ -1,6 +1,11 @@
 test.txt
 .aoc_cache
 
+# C#
+bin
+obj
+*.csproj
+
 # Haskell
 *.hi
 *.hsx
