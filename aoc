@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from abc import ABC, abstractmethod, abstractproperty
 from argparse import ArgumentParser
 from enum import Enum
 from shutil import copy
@@ -295,6 +296,47 @@ def main(args=None):
 ##################################################
 
 # pylint: disable=unsubscriptable-object, no-self-use, subprocess-run-check
+
+class SupportedLanguage(ABC):
+    @abstractproperty
+    def id(self):
+        return "SupportedLanguage"
+
+    @abstractproperty
+    def source_extension(self):
+        return ""
+
+    @abstractproperty
+    def compile_command(self):
+        return []
+
+    @abstractproperty
+    def requires_compile(self):
+        return False
+
+    @abstractmethod
+    def should_enter_working_dir(self):
+        return False
+
+    @classmethod
+    def parse(cls, language):
+        if language == 'python':
+            return Python
+        return None
+
+    def run(self, base_dir, working_dir, challenge, is_recursed=False):
+        if not is_recursed:
+            if self.should_enter_working_dir:
+                with cd(working_dir):
+                    return self.run(base_dir, working_dir, challenge, True)
+        
+        if self.requires_compile:
+            compile_result = self._compile(challenge, self.compile_command(), base_directory)
+            if compile_result.returncode != 0:
+                print('Compilation failed.')
+                return None
+            return self._execute([self._compile_file(challenge, base_directory)])
+
 
 
 class SupportedLanguage(Enum):
