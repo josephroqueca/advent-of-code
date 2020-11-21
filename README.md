@@ -81,3 +81,39 @@ If a problem hasn't been solved with your language of choice, then the script wi
 | Ruby     | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴  | 🔴 | 🔴  | 🔴 | 🔴 | 🔴  | 🔴 | 🔴 | 🔴  | 🔴 | 🔴 | 🔴 |
 | Rust     | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴  | 🔴 | 🔴  | 🔴 | 🔴 | 🔴  | 🔴 | 🔴 | 🔴  | 🔴 | 🔴 | 🔴 |
 | Swift    | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | 🔴  | 🔴 | 🔴  | 🔴 | 🔴 | 🔴  | 🔴 | 🔴 | 🔴  | 🔴 | 🔴 | 🔴 |
+
+## Requirements
+
+### C#
+<details>
+* .NET 5.0+
+</details>
+
+### Haskell
+<details>
+* Stack
+</details>
+
+### Python
+<details>
+* Python 3.9.0+
+* pylint
+</details>
+
+### Ruby
+<details>
+* Ruby 2.7.0+
+* RuboCop
+</details>
+
+### Rust
+<details>
+* Rust
+* Cargo
+</details>
+
+### SWift
+<details>
+* Swift 5.3+
+* SwiftLint
+</details>
