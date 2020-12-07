@@ -1,0 +1,1 @@
+268 bags eventually contain at least one shiny gold bag
