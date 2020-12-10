@@ -17,9 +17,19 @@ class _Data(object):
     def lines(self):
         return self._contents.splitlines()
 
-    def as_number_list(self, allow_negatives=True):
+    def numbers(self, allow_negatives=True):
         regex = r'-?\d+' if allow_negatives else r'\d+'
         return [int(re.search(regex, line).group(0)) for line in self.lines()]
+
+    def numbers_by_line(self, allow_negatives=True):
+        regex = r'-?\d+' if allow_negatives else r'\d+'
+        return [[int(match) for match in re.findall(regex, line)] for line in get_lines()]
+
+    def table(self, data, sep=','):
+        return [[
+            int(col[1]) if col[0] == 'd' else col[1]
+                for col in zip(data, line.split(sep))
+        ] for line in self.lines()]
 
 
 def _fetch(year, day, input_file):

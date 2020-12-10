@@ -94,11 +94,18 @@ class AOC:
 
         if os.path.exists(starter_file):
             for dest in ['p1', 'p2']:
-                copy(starter_file, os.path.join(
+                starter_dest = os.path.join(
                     self.working_dir,
                     self._language.src_prefix(),
                     '{dest}{extension}'.format(dest=dest, extension=self._language.extension())
-                ))
+                )
+                copy(starter_file, starter_dest)
+                with open(starter_dest) as r:
+                    text = r.read() \
+                        .replace('__year__', self.challenge.year) \
+                        .replace('__day__', self.challenge.day)
+                with open(starter_dest, 'w') as w:
+                    w.write(text)
 
         if os.path.exists(supporting_dir):
             copy_directory(supporting_dir, self.working_dir)
