@@ -1,1 +1,1 @@
-There are 16198260678656 total distinct arrangements
+16198260678656

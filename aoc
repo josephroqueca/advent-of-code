@@ -44,14 +44,14 @@ class Challenge:
 class AOC:
     def __init__(self, parser):
         self._parser = parser
-        self._session = None
         self._language = None
+        self.session = None
         self.challenge = Challenge()
         if os.path.exists(cache_file):
             with open(cache_file) as cache:
                 try:
                     lines = cache.readlines()
-                    self._session = lines[4][lines[4].index('=') + 1:].strip()
+                    self.session = lines[4][lines[4].index('=') + 1:].strip()
                     self._language = SupportedLanguage.parse(lines[0][lines[0].index('=') + 1:].strip())
 
                     year = lines[1][lines[1].index('=') + 1:].strip()
@@ -114,7 +114,7 @@ class AOC:
         if os.path.exists(input_file):
             return
 
-        cookies = {'session': self._session}
+        cookies = {'session': self.session}
         r = requests.get(
             'https://adventofcode.com/{year}/day/{day}/input'.format(
                 year=self.challenge.year, day=int(self.challenge.day)),
@@ -129,7 +129,7 @@ class AOC:
 
     def run(self, save):
         self._validate_state()
-        process = self._language.run(os.path.dirname(os.path.realpath(__file__)), self.working_dir, self.challenge)
+        process = self._language.run(self, os.path.dirname(os.path.realpath(__file__)), self.working_dir)
 
         if process is None:
             print('Solution failed to run.')
@@ -181,12 +181,12 @@ class AOC:
             year=self.challenge.year if self.challenge else '',
             day=self.challenge.day if self.challenge else '',
             part=self.challenge.part if self.challenge else '',
-            session=self._session  if self._session else ''
+            session=self.session  if self.session else ''
         )
 
     def set_env(self, session, language, year, day, part):
         if session:
-            self._session = session
+            self.session = session
         supported_language = SupportedLanguage.parse(language)
         if supported_language:
             self._language = supported_language
@@ -221,7 +221,7 @@ class AOC:
             return False
 
     def _validate_state(self, with_session=False):
-        if with_session and not self._session:
+        if with_session and not self.session:
             raise ValueError('Session is not available')
         if not self._language:
             raise ValueError('Language is not available')
@@ -359,13 +359,13 @@ class SupportedLanguage(Enum):
     def _execute(self, command):
         return subprocess.run(command, capture_output=True)
 
-    def run(self, base_directory, working_directory, challenge, is_recursed=False):
+    def run(self, aoc, base_directory, working_directory, is_recursed=False):
         if not is_recursed:
             if self.should_enter_directory():
                 with cd(working_directory):
-                    return self.run(base_directory, working_directory, challenge, True)
+                    return self.run(aoc, base_directory, working_director, True)
 
-        if self in [SupportedLanguage.PYTHON, SupportedLanguage.RUBY]:
+        if self == SupportedLanguage.RUBY:
             return self._execute([self.id(), self._source_file(challenge, base_directory)])
         if self in [SupportedLanguage.SWIFT, SupportedLanguage.HASKELL]:
             compile_result = self._compile(challenge, self.compile_command(), base_directory)
@@ -377,6 +377,16 @@ class SupportedLanguage(Enum):
             return self._execute(['cargo', 'run', challenge.part])
         if self == SupportedLanguage.CSHARP:
             return self._execute(['dotnet', 'run', '--', challenge.part])
+        if self == SupportedLanguage.PYTHON:
+            with cd(os.path.join('.', 'util', 'python')):
+                return self._execute([
+                    'python',
+                    '-m', 'runner',
+                    '--year', aoc.challenge.year,
+                    '--day', aoc.challenge.day,
+                    '--part', aoc.challenge.part,
+                    '--session', aoc.session,
+                ])
         return None
 
 # Change Directory
