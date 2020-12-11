@@ -61,6 +61,31 @@ def load(year, day):
     return _Data(contents)
 
 
+def load_output(year, day, part):
+    day_str = str(day) if day >= 10 else '0{day}'.format(day=day)
+    output = os.path.join(
+        _SCRIPT_PATH,
+        '..',
+        '..',
+        '..',
+        str(year),
+        'day_{day}'.format(day=day_str),
+        'output_{part}.txt'.format(part=part)
+    )
+
+    if not os.path.exists(output):
+        raise Exception('{year}, {day}, Part {part} does not have a cached output'.format(
+            year=year,
+            day=day,
+            part=part
+        ))
+
+    contents = ''
+    with open(output) as f:
+        contents = f.read()
+
+    return _Data(contents)
+
 # Helpers
 
 Position = namedtuple('Position', ['x', 'y'])
