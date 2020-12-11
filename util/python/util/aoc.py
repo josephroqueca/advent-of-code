@@ -1,6 +1,7 @@
 import re
 import os
 import requests
+from collections import namedtuple
 
 
 _SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -58,3 +59,8 @@ def load(year, day):
         raise Exception('Failed to load input data ({input_file})'.format(input_file=input_file))
 
     return _Data(contents)
+
+
+# Helpers
+
+Position = namedtuple('Position', ['x', 'y'])
