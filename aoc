@@ -135,6 +135,7 @@ class AOC:
 
     def run(self, save):
         self._validate_state()
+        print('Running {year}, {day}:'.format(year=self.challenge.year, day=self.challenge.day))
         process = self._language.run(self, os.path.dirname(os.path.realpath(__file__)), self.working_dir)
 
         if process is None:
@@ -247,55 +248,52 @@ def main(args=None):
     parser = ArgumentParser(description='Advent of Code')
 
     parser.add_argument(
-        '--create',
-        action='store_true',
-        help='Create the files and directories for the language/year/day'
-    )
-
-    parser.add_argument(
-        '--fetch',
+        '-f', '--fetch',
         action='store_true',
         help='Fetch the input for the year/day'
     )
 
     parser.add_argument(
-        '--run',
+        '-r', '--run',
         action='store_true',
         help='Run the program for the language/year/day/part'
     )
 
     parser.add_argument(
-        '--save',
+        '-s', '--save',
         action='store_true',
         help='Save the output'
     )
 
     parser.add_argument(
-        '--open',
+        '-o', '--open',
         action='store_true',
         help='Open the challenge in the browser'
     )
 
     parser.add_argument('--session', help='Set your session. Cached for future runs')
-    parser.add_argument('--language', help='Set the current language. Cached for future runs')
-    parser.add_argument('--year', help='Sets the current year. Cached for future runs')
-    parser.add_argument('--day', help='Sets the current day. Cached for future runs')
-    parsed = parser.parse_args()
 
+    parser.add_argument('LANG', nargs='?', help='The language of the script to run. Cached for future runs')
+    parser.add_argument('YEAR', nargs='?', help='The year of the script to run. Cached for future runs')
+    parser.add_argument('DAY', nargs='?', help='The day of the script to run. Cached for future runs')
     aoc = AOC(parser)
-    aoc.set_env(parsed.session, parsed.language, parsed.year, parsed.day)
 
-    if parsed.create:
+    if args:
+        parsed = parser.parse_args(args)
+
+        aoc.set_env(parsed.session, parsed.LANG, parsed.YEAR, parsed.DAY)
+        aoc.cache_env()
         aoc.create()
-    if parsed.fetch:
-        aoc.fetch()
-    elif parsed.run:
-        aoc.run(parsed.save)
 
-    if parsed.open:
-        aoc.open()
+        if parsed.fetch:
+            aoc.fetch()
+        elif parsed.run:
+            aoc.run(parsed.save)
 
-    aoc.cache_env()
+        if parsed.open:
+            aoc.open()
+    else:
+        aoc.run(False)
 
 # SupportedLanguage
 ##################################################
