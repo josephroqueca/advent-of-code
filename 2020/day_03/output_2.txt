@@ -1,1 +1,0 @@
-The product of all the encountered trees is 1666768320
