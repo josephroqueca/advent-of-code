@@ -39,24 +39,5 @@ import aoc
 aoc._session = parsed.session
 
 # Get solution
-solution = None
-if parsed.part == '1':
-    import p1
-    solution = p1.solution
-elif parsed.part == '2':
-    import p2
-    solution = p2.solution
-
-
-# Submit, if argument provided
-if parsed.submit:
-    # TODO: check response of post request
-    if solution is None or solution == '':
-        print('Failed to submit solution')
-    print('Submitting', solution)
-    cookies = {'session': session}
-    r = requests.post(
-        'https://adventofcode.com/{year}/day/{day}/answer'.format(year=year, day=day),
-        cookies=cookies,
-        data={"level": int(parsed.part), "answer": solution}
-    )
+import importlib
+importlib.import_module('day{day}'.format(day=day_str))

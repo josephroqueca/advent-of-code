@@ -17,11 +17,10 @@ cache_file = '.aoc_cache'
 
 
 class Challenge:
-    def __init__(self, year=None, day=None, part=None):
+    def __init__(self, year=None, day=None):
         now = datetime.now()
         self.year = year if year else now.year
         self.day = day if day else now.day
-        self.part = part if part else 1
 
         if int(self.day) < 10:
             self.day = '0{day}'.format(day=int(self.day))
@@ -31,11 +30,9 @@ class Challenge:
             raise ValueError('Year is not available')
         if not self.day:
             raise ValueError('Day is not available')
-        if not self.part:
-            raise ValueError('Part is not available')
 
     def __str__(self):
-        return "{year}, {day}, {part}".format(year=self.year, day=self.day, part=self.part)
+        return "{year}, {day}".format(year=self.year, day=self.day)
 
 # AoC
 ##################################################
@@ -51,13 +48,12 @@ class AOC:
             with open(cache_file) as cache:
                 try:
                     lines = cache.readlines()
-                    self.session = lines[4][lines[4].index('=') + 1:].strip()
+                    self.session = lines[3][lines[3].index('=') + 1:].strip()
                     self._language = SupportedLanguage.parse(lines[0][lines[0].index('=') + 1:].strip())
 
                     year = lines[1][lines[1].index('=') + 1:].strip()
                     day = lines[2][lines[2].index('=') + 1:].strip()
-                    part = lines[3][lines[3].index('=') + 1:].strip()
-                    self.challenge = Challenge(year, day, part)
+                    self.challenge = Challenge(year, day)
                 except:
                     pass
 
@@ -93,19 +89,18 @@ class AOC:
         os.makedirs(os.path.join(self.working_dir, self._language.src_prefix()), exist_ok=True)
 
         if os.path.exists(starter_file):
-            for dest in ['p1', 'p2']:
-                starter_dest = os.path.join(
-                    self.working_dir,
-                    self._language.src_prefix(),
-                    '{dest}{extension}'.format(dest=dest, extension=self._language.extension())
-                )
-                copy(starter_file, starter_dest)
-                with open(starter_dest) as r:
-                    text = r.read() \
-                        .replace('__year__', self.challenge.year) \
-                        .replace('__day__', self.challenge.day)
-                with open(starter_dest, 'w') as w:
-                    w.write(text)
+            starter_dest = os.path.join(
+                self.working_dir,
+                self._language.src_prefix(),
+                'day{day}{extension}'.format(day=self.challenge.day, extension=self._language.extension())
+            )
+            copy(starter_file, starter_dest)
+            with open(starter_dest) as r:
+                text = r.read() \
+                    .replace('__year__', self.challenge.year) \
+                    .replace('__day__', self.challenge.day)
+            with open(starter_dest, 'w') as w:
+                w.write(text)
 
         if os.path.exists(supporting_dir):
             copy_directory(supporting_dir, self.working_dir)
@@ -116,8 +111,12 @@ class AOC:
     def fetch(self):
         self._validate_state(with_session=True)
 
-        input_file = os.path.join('.', str(self.challenge.year),
-                                  'day_{day}'.format(day=self.challenge.day), 'input.txt')
+        input_file = os.path.join(
+            '.',
+            str(self.challenge.year),
+            'day_{day}'.format(day=self.challenge.day),
+            'input.txt'
+        )
         if os.path.exists(input_file):
             return
 
@@ -154,8 +153,12 @@ class AOC:
 
         print('-----\n{response}\n-----\n'.format(response=response))
 
-        output_file = os.path.join('.', str(self.challenge.year), 'day_{day}'.format(
-            day=self.challenge.day), 'output_{part}.txt'.format(part=self.challenge.part))
+        output_file = os.path.join(
+            '.',
+            str(self.challenge.year),
+            'day_{day}'.format(day=self.challenge.day),
+            'output.txt'
+        )
 
         if response and save:
             print('Saving output: {response}'.format(response=response))
@@ -183,15 +186,14 @@ class AOC:
         webbrowser.open(url, new=2)
 
     def __str__(self):
-        return 'language={language}\nyear={year}\nday={day}\npart={part}\nsession={session}'.format(
+        return 'language={language}\nyear={year}\nday={day}\nsession={session}'.format(
             language=self._language.id() if self._language else '',
             year=self.challenge.year if self.challenge else '',
             day=self.challenge.day if self.challenge else '',
-            part=self.challenge.part if self.challenge else '',
             session=self.session  if self.session else ''
         )
 
-    def set_env(self, session, language, year, day, part):
+    def set_env(self, session, language, year, day):
         if session:
             self.session = session
         supported_language = SupportedLanguage.parse(language)
@@ -204,8 +206,6 @@ class AOC:
             self.challenge.day = day
             if int(self.challenge.day) < 10:
                 self.challenge.day = '0{day}'.format(day=int(self.challenge.day))
-        if part:
-            self.challenge.part = part
 
         if self.is_valid_state():
             self.working_dir = os.path.join(
@@ -233,7 +233,7 @@ class AOC:
         if not self._language:
             raise ValueError('Language is not available')
         if not self.challenge:
-            raise ValueError('Year/Day/Part is not available')
+            raise ValueError('Year/Day is not available')
         self.challenge.validate_state()
 
 # Main
@@ -280,11 +280,10 @@ def main(args=None):
     parser.add_argument('--language', help='Set the current language. Cached for future runs')
     parser.add_argument('--year', help='Sets the current year. Cached for future runs')
     parser.add_argument('--day', help='Sets the current day. Cached for future runs')
-    parser.add_argument('--part', help='Sets the current part. Cached for future runs')
     parsed = parser.parse_args()
 
     aoc = AOC(parser)
-    aoc.set_env(parsed.session, parsed.language, parsed.year, parsed.day, parsed.part)
+    aoc.set_env(parsed.session, parsed.language, parsed.year, parsed.day)
 
     if parsed.create:
         aoc.create()
@@ -344,7 +343,7 @@ class SupportedLanguage(Enum):
             str(challenge.year),
             'day_{day}'.format(day=challenge.day),
             self.id(),
-            'p{part}{extension}'.format(part=challenge.part, extension=self.extension())
+            '{day}{extension}'.format(day=challenge.day, extension=self.extension())
         )
 
     def _compile_file(self, challenge, base_directory):
@@ -353,7 +352,7 @@ class SupportedLanguage(Enum):
             str(challenge.year),
             'day_{day}'.format(day=challenge.day),
             self.id(),
-            'p{part}{extension}'.format(part=challenge.part, extension=self.compile_extension())
+            'day{day}{extension}'.format(day=challenge.day, extension=self.compile_extension())
         )
 
     def _compile(self, challenge, command, base_directory):
@@ -381,9 +380,9 @@ class SupportedLanguage(Enum):
                 return None
             return self._execute([self._compile_file(challenge, base_directory)])
         if self == SupportedLanguage.RUST:
-            return self._execute(['cargo', 'run', challenge.part])
+            return self._execute(['cargo', 'run'])
         if self == SupportedLanguage.CSHARP:
-            return self._execute(['dotnet', 'run', '--', challenge.part])
+            return self._execute(['dotnet', 'run'])
         if self == SupportedLanguage.PYTHON:
             with cd(os.path.join('.', 'util', 'python')):
                 return self._execute([
@@ -391,7 +390,6 @@ class SupportedLanguage(Enum):
                     '-m', 'runner',
                     '--year', aoc.challenge.year,
                     '--day', aoc.challenge.day,
-                    '--part', aoc.challenge.part,
                     '--session', aoc.session,
                 ])
         return None
