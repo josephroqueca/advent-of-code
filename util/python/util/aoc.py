@@ -2,6 +2,7 @@ import re
 import os
 import requests
 from collections import namedtuple
+from enum import Enum
 
 
 _SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -92,3 +93,13 @@ def load_output(year, day, part):
 # Helpers
 
 Position = namedtuple('Position', ['x', 'y'])
+
+class Direction(Enum):
+    N = (0, -1)
+    E = (1, 0)
+    S = (0, 1)
+    W = (-1, 0)
+
+    @property
+    def position(self):
+        return Position(self.value[0], self.value[1])
