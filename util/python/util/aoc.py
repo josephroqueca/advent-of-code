@@ -32,6 +32,9 @@ class _Data(object):
                 for col in zip(data, line.split(sep))
         ] for line in self.lines()]
 
+    def parse_lines(self, regex, container=list):
+        return [container(re.match(regex, line).groups()) for line in self.lines()]
+
 
 def _fetch(year, day, input_file):
     cookies = {'session': _session}
