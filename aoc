@@ -316,7 +316,7 @@ def main(args=None):
 
         if parsed.test:
             aoc.test_all()
-        elif parsed.run:
+        elif parsed.run or parsed.save:
             aoc.run(parsed.save)
 
         if parsed.open:

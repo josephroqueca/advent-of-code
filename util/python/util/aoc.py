@@ -48,11 +48,19 @@ def _fetch(year, day, input_file):
         f.write(r.text)
 
 
-def load(year, day):
+def load(year, day, test=False):
     day_str = str(day) if day >= 10 else '0{day}'.format(day=day)
 
-    input_file = os.path.join(_SCRIPT_PATH, '..', '..', '..', str(year), 'day_{day}'.format(day=day_str), 'input.txt')
-    if not os.path.exists(input_file):
+    input_file = os.path.join(
+        _SCRIPT_PATH,
+        '..',
+        '..',
+        '..',
+        str(year),
+        'day_{day}'.format(day=day_str),
+        'test.txt' if test else 'input.txt'
+    )
+    if not test and not os.path.exists(input_file):
         _fetch(year, day, input_file)
 
     contents = None
@@ -91,6 +99,10 @@ def load_output(year, day, part):
     return _Data(contents)
 
 # Helpers
+
+import fmath
+chinese_remainder = fmath.chinese_remainder
+mul_inv = fmath.mul_inv
 
 Position = namedtuple('Position', ['x', 'y'])
 
