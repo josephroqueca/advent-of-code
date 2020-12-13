@@ -1,1 +1,0 @@
-The sum of the counts is 6686
