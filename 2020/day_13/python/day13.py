@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import aoc
 import re
 data = aoc.load(year=2020, day=13)
