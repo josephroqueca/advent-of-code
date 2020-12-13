@@ -2,7 +2,7 @@ import aoc
 
 data = aoc.load(year=2020, day=2)
 
-class Password(object):
+class Password:
     def __init__(self, groups):
         self.range = range(int(groups[0]), int(groups[1]) + 1)
         self.letter = groups[2]

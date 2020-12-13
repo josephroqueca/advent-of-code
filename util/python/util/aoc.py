@@ -9,7 +9,7 @@ _SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 _session = None
 
 
-class _Data(object):
+class _Data:
     def __init__(self, contents):
         self._contents = contents
 
@@ -103,6 +103,9 @@ def load_output(year, day, part):
 import fmath
 chinese_remainder = fmath.chinese_remainder
 mul_inv = fmath.mul_inv
+
+import comp
+Computer = comp.Computer
 
 Position = namedtuple('Position', ['x', 'y'])
 
