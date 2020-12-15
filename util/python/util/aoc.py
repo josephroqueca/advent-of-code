@@ -25,7 +25,7 @@ class _Data:
 
     def numbers_by_line(self, allow_negatives=True):
         regex = r'-?\d+' if allow_negatives else r'\d+'
-        return [[int(match) for match in re.findall(regex, line)] for line in get_lines()]
+        return [[int(match) for match in re.findall(regex, line)] for line in self.lines()]
 
     def table(self, data, sep=','):
         return [[
