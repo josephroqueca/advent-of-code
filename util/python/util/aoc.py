@@ -1,40 +1,12 @@
-import re
 import os
 import requests
 from collections import namedtuple
 from enum import Enum
+from data import _Data
 
 
 _SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 _session = None
-
-
-class _Data:
-    def __init__(self, contents):
-        self._contents = contents
-
-    def contents(self):
-        return self._contents[:]
-
-    def lines(self):
-        return self._contents.splitlines()
-
-    def numbers(self, allow_negatives=True):
-        regex = r'-?\d+' if allow_negatives else r'\d+'
-        return [int(re.search(regex, line).group(0)) for line in self.lines()]
-
-    def numbers_by_line(self, allow_negatives=True):
-        regex = r'-?\d+' if allow_negatives else r'\d+'
-        return [[int(match) for match in re.findall(regex, line)] for line in self.lines()]
-
-    def table(self, data, sep=','):
-        return [[
-            int(col[1]) if col[0] == 'd' else col[1]
-                for col in zip(data, line.split(sep))
-        ] for line in self.lines()]
-
-    def parse_lines(self, regex, container=list):
-        return [container(re.match(regex, line).groups()) for line in self.lines()]
 
 
 def _fetch(year, day, input_file):
@@ -118,3 +90,6 @@ class Direction(Enum):
     @property
     def position(self):
         return Position(self.value[0], self.value[1])
+
+def flatten(l):
+    return [item for sublist in l for item in sublist]
