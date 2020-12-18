@@ -79,7 +79,8 @@ mul_inv = fmath.mul_inv
 import comp
 Computer = comp.Computer
 
-Position = namedtuple('Position', ['x', 'y'])
+import position
+Position = position.Position
 
 class Direction(Enum):
     N = (0, -1)
