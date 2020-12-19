@@ -59,7 +59,7 @@ class _Data:
             chunk_max = chunk['count'] if 'count' in chunk else math.inf
             while lines and chunk_count < chunk_max:
                 l = lines[0]
-                if chunk['type' ] == 'regex':
+                if chunk['type'] == 'regex':
                     parsed = self._parse_regex(chunk['value'], l)
                     if not parsed: break
                     chunk_output.append(parsed)
@@ -67,6 +67,8 @@ class _Data:
                     numbers = self._parse_number_line(l)
                     if not numbers: break
                     chunk_output.append(numbers)
+                elif chunk['type'] == 'string':
+                    chunk_output.append(l)
                 elif chunk['type'] == 'drop':
                     pass
                 lines.pop(0)
