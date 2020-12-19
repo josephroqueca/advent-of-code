@@ -6,6 +6,7 @@ from shutil import copy
 from datetime import datetime
 import os
 import sys
+import time
 import subprocess
 import webbrowser
 import requests
@@ -155,8 +156,10 @@ class AOC:
 
     def run(self, save):
         self._validate_state()
-        print('Running {year}, {day}:'.format(year=self.challenge.year, day=self.challenge.day))
+        print('=====\nRunning {year}, {day}:'.format(year=self.challenge.year, day=self.challenge.day))
+        start_time = time.perf_counter()
         process = self._language.run(self, os.path.dirname(os.path.realpath(__file__)), self.working_dir)
+        end_time = time.perf_counter()
 
         if process is None:
             print('Solution failed to run.')
@@ -172,7 +175,8 @@ class AOC:
             print(response)
             return
 
-        print('-----\n{response}\n-----'.format(response=response))
+        print('---\n{response}\n---'.format(response=response))
+        print('Runtime: {runtime}'.format(runtime=end_time - start_time))
 
         output_file = os.path.join(
             '.',

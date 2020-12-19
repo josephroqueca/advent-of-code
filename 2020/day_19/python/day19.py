@@ -60,7 +60,7 @@ def resolve_infinite_rule(r):
         if r == 8:
             return '(' + resolver(42) + ')' + '+'
         elif r == 11:
-            return '(' + '|'.join([resolver(42) * i + resolver(31) * i for i in range(1, 10)]) + ')'
+            return '(' + '|'.join([resolver(42) * i + resolver(31) * i for i in range(1, 5)]) + ')'
         return ''
 
     @lru_cache
