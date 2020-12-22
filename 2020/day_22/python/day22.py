@@ -1,6 +1,4 @@
 import aoc
-import re
-import itertools
 
 data = aoc.load(year=2020, day=22)
 
