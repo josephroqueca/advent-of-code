@@ -66,7 +66,7 @@ class _Data:
                 elif chunk['type'] == 'numbers':
                     numbers = self._parse_number_line(l)
                     if not numbers: break
-                    chunk_output.append(numbers)
+                    chunk_output.append(numbers if len(numbers) > 1 else numbers[0])
                 elif chunk['type'] == 'string':
                     chunk_output.append(l)
                 elif chunk['type'] == 'drop':
