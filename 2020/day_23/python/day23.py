@@ -1,5 +1,4 @@
 import aoc
-from collections import deque
 
 data = aoc.load(year=2020, day=23)
 
