@@ -1,4 +1,5 @@
 import os
+import re
 import requests
 from collections import namedtuple
 from enum import Enum
@@ -94,3 +95,6 @@ class Direction(Enum):
 
 def flatten(l):
     return [item for sublist in l for item in sublist]
+
+def find_all(s, f):
+    return [m.start() for m in re.finditer(s, f)]
