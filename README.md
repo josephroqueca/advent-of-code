@@ -7,10 +7,10 @@ My solutions to the Advent of Code challenges
 You can use the incredibly convenient `aoc` script! It's used as follows:
 
 ```
-usage: ./aoc [-h] [--create] [--fetch] [--run] [--open] [--save] [--session SESSION] LANG YEAR DAY
+usage: ./aoc [-h] [--fetch,-f] [--run,-r] [--open, -o] [--save, -s] [--test,-t] [--session SESSION] LANG YEAR DAY
 ```
 
-If a problem hasn't been solved with your language of choice, then the script will tell you! Check out the list below for languages that problems have been solved in.
+If a problem hasn't been solved with your language of choice, then the script will let you know.
 
 ## 2020 -> 50/50 :star: :white_check_mark:
 
@@ -99,7 +99,7 @@ If a problem hasn't been solved with your language of choice, then the script wi
 * Cargo
 </details>
 
-### SWift
+### Swift
 <details>
 * Swift 5.3+
 * SwiftLint
